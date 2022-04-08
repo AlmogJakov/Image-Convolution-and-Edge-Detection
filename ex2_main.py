@@ -86,11 +86,20 @@ def conv1Demo():
 
 def conv2Demo():
     img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
-    kernel = np.ones((5, 5))
+    # img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
+    # print(img[0:4, 4:14])
+    kernel = np.ones((6, 6))
     kernel = kernel / kernel.sum()
     c_img = conv2D(img, kernel) / 255
-
+    # print(img)
     cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
+    # print(conv2D(img, kernel))
+    # print(cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE))
+    # for i in range(800):
+    #     for j in range(1200):
+    #         if np.abs(c_img[i][j] - cv_img[i][j]) > 0:
+    #             print("("+str(i)+","+str(j)+") error: "+str(np.abs(c_img[i][j] - cv_img[i][j])))
+    #             print("mine: "+str(c_img[i][j]*255)+". them: "+str(cv_img[i][j]*255))
     print("MSE: {}".format(255 * MSE(c_img, cv_img)))
     print("Max Error: {}".format(
         np.abs(c_img - cv_img).max() * 255
@@ -140,11 +149,11 @@ def biliteralFilterDemo():
 def main():
     conv1Demo()
     conv2Demo()
-    derivDemo()
-    blurDemo()
-    edgeDemo()
-    houghDemo()
-    biliteralFilterDemo()
+    # derivDemo()
+    # blurDemo()
+    # edgeDemo()
+    # houghDemo()
+    # biliteralFilterDemo()
 
 
 if __name__ == '__main__':

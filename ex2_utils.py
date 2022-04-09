@@ -48,26 +48,23 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     :param in_image: Grayscale iamge
     :return: (directions, magnitude)
     """
-    y_kernel = np.array([[1, 0, -1]])
-    x_kernel = y_kernel.reshape(y_kernel.shape[::-1])
-    new_img = np.pad(in_image, ((1, 1), (1, 1)), mode='edge')
-    # print(new_img)
-    magnitude = [[math.sqrt(np.sum(new_img[i:i + 3, j + 1:j + 2] * x_kernel) ** 2 +
-                            np.sum(new_img[i + 1:i + 2, j:j + 3] * y_kernel) ** 2) for j in
-                  range(len(in_image[0]))]
-                 for i in range(len(in_image))]
+    x_kernel = np.array([[1, 0, -1]])  # Horizontal vector
+    y_kernel = x_kernel.T  # Vertical vector
+    x = conv2D(in_image, x_kernel) / 255.0
+    y = conv2D(in_image, y_kernel) / 255.0
+    magnitude = np.sqrt(x ** 2 + y ** 2)
+    # https://stackoverflow.com/questions/26248654/how-to-return-0-with-divide-by-zero
+    directions = np.arctan(np.divide(y, x, out=np.zeros_like(y), where=x!=0))
     # directions = [[np.arctan(np.sum(new_img[i + 1:i + 2, j:j + 3] * y_kernel) ** 2 /
     #                          np.sum(new_img[i:i + 3, j + 1:j + 2] * x_kernel) ** 2) for j in
     #                range(len(in_image[0]))]
     #               for i in range(len(in_image))]
     # print(magnitude)
     # print(directions)
-    result = in_image
-    cv2.magnitude(in_image[:1],in_image[:1], result)
-    print(result)
-    print()
-    print(np.array(magnitude))
-    return magnitude, magnitude
+    # print(result)
+    # print()
+    # print(np.array(magnitude))
+    return directions, magnitude
 
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:

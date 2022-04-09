@@ -155,10 +155,10 @@ def main():
     conv1Demo()
     conv2Demo()
     derivDemo()
-    blurDemo()
-    edgeDemo()
-    houghDemo()
-    biliteralFilterDemo()
+    # blurDemo()
+    # edgeDemo()
+    # houghDemo()
+    # biliteralFilterDemo()
 
 
 if __name__ == '__main__':

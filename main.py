@@ -5,7 +5,7 @@
 import cv2
 import numpy as np
 
-from ex2_utils import conv1D, conv2D
+from ex2_utils import conv1D, conv2D, convDerivative
 
 
 def print_hi(name):
@@ -53,8 +53,9 @@ if __name__ == '__main__':
     # print(result)
     # print(cv2.filter2D(src, -1, np.int8(k), borderType=cv2.BORDER_REPLICATE))
 
-    # img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
-    # kernel = np.ones((5, 5))
+    img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
+    convDerivative(img)
+    kernel = np.ones((5, 5))
     # kernel = kernel / kernel.sum()
     # c_img = conv2D(img, kernel) / 255
     # cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
@@ -63,34 +64,4 @@ if __name__ == '__main__':
     #      [-1,0,1],
     #      [2, 3, 4]]
 
-    src = np.array([[4, 3, 5, 1, 5],
-                    [5, 4, 7, 1, 2],
-                    [6, 4, 6, 1, 2],
-                    [7, 2, 3, 5, 6]])
 
-    src = np.array([[135 ,139 ,143 ,146 ,148 ,147 ,146 ,146 ,144 ,140],
-            [135 ,138 ,142 ,145 ,147 ,146 ,145 ,145 ,143 ,139],
-            [135 ,137 ,141 ,144 ,146 ,145 ,144 ,144 ,142 ,138],
-            [134 ,137 ,141 ,144 ,146 ,145 ,144 ,144 ,142 ,138]])
-    cv2.imwrite('Test_gray.jpg', src)
-    img = cv2.imread('Test_gray.jpg', cv2.IMREAD_GRAYSCALE)
-    print(img)
-    # k = np.array([[1/5, 1/2, 1/7],
-    #               [1/6, 1/4, 1/3]])
-    k = np.ones((6, 3))
-    k = k / k.sum()
-    print(k)
-    print(cv2.filter2D(img, -1, k, borderType=cv2.BORDER_REPLICATE))
-    # half_shape = tuple(int(i / 2 + 1) for i in k.shape)[::-1]
-    # print(half_shape)
-    # new_img = np.pad(src, (half_shape, half_shape), mode='edge')
-    half_shape = tuple(int(np.floor(i / 2)) for i in k.shape)
-    new_img = np.pad(img, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
-    print(new_img)
-    print()
-    print(conv2D(img, k))
-    # print(new_img)
-    # f_row = 1
-    # f_col = 1
-    # sub = new_img[0:3, 0:3]
-    # print(sub)

@@ -30,40 +30,15 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     :param kernel: A kernel
     :return: The convolved image
     """
-    # k_row = len(kernel)
-    # k_col = len(kernel[0])
-    # image_row = len(in_image)
-    # new_k = np.zeros(kernel.shape)
-    # result = np.zeros(in_image.shape)
-    # # kernel = np.flip(kernel, axis=0)  # flip vertically
-    # # kernel = np.flip(kernel, axis=1)  # flip hor
-    # for i in range(len(in_image)):
-    #     for j in range(len(in_image[0])):
-    #         f_row = int(i - k_row / 2 + 0.5)
-    #         f_col = int(j - k_col / 2 + 0.5)
-    #         indices = np.arange(f_col, f_col + k_col)
-    #         t = [np.take(in_image[sorted((0, f_row + idx, image_row - 1))[1]], indices, mode='clip') for idx, item
-    #              in enumerate(new_k)]
-    #         result[i][j] = int(np.sum(t * kernel)+0.5)
-    # return result
-
-    # t = [np.take(in_image[sorted((0, f_row + idx, image_row - 1))[1]], indices, mode='clip') for idx, item
-    #      in enumerate(new_k)]
-
-    # t = [np.take(in_image[max(min(image_row - 1, f_row + idx), 0)], indices, mode='clip') for idx, item
-    #      in enumerate(new_k)]
-
+    if kernel.ndim == 1:
+        kernel = np.array([kernel])
+        kernel = kernel.reshape(kernel.shape[::-1])
     k_row = len(kernel)
     k_col = len(kernel[0])
-    # kernel = np.flip(kernel, axis=0)  # flip vertically
-    # kernel = np.flip(kernel, axis=1)  # flip hor
     half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
     new_img = np.pad(in_image, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
-    # print(np.round(round(np.sum(new_img[3:3+k_row, 2:2+k_col] * 1/18),8)))
     result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
               for i in range(len(in_image))]
-    # print([[np.sum(new_img[i:i+k_row, j:j+k_col] * kernel) for j in range(len(in_image[0]))]
-    #           for i in range(len(in_image))])
     return np.clip(np.array(result).astype('int'), 0, 255)
 
 
@@ -73,8 +48,26 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     :param in_image: Grayscale iamge
     :return: (directions, magnitude)
     """
-
-    return
+    y_kernel = np.array([[1, 0, -1]])
+    x_kernel = y_kernel.reshape(y_kernel.shape[::-1])
+    new_img = np.pad(in_image, ((1, 1), (1, 1)), mode='edge')
+    # print(new_img)
+    magnitude = [[math.sqrt(np.sum(new_img[i:i + 3, j + 1:j + 2] * x_kernel) ** 2 +
+                            np.sum(new_img[i + 1:i + 2, j:j + 3] * y_kernel) ** 2) for j in
+                  range(len(in_image[0]))]
+                 for i in range(len(in_image))]
+    # directions = [[np.arctan(np.sum(new_img[i + 1:i + 2, j:j + 3] * y_kernel) ** 2 /
+    #                          np.sum(new_img[i:i + 3, j + 1:j + 2] * x_kernel) ** 2) for j in
+    #                range(len(in_image[0]))]
+    #               for i in range(len(in_image))]
+    # print(magnitude)
+    # print(directions)
+    result = in_image
+    cv2.magnitude(in_image[:1],in_image[:1], result)
+    print(result)
+    print()
+    print(np.array(magnitude))
+    return magnitude, magnitude
 
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
@@ -103,7 +96,7 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
     """
     Detecting edges using "ZeroCrossing" method
     :param img: Input image
-    :return: opencv solution, my implementation
+    :return: Edge matrix
     """
 
     return
@@ -111,9 +104,9 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
 
 def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     """
-    Detecting edges usint "ZeroCrossingLOG" method
+    Detecting edges using "ZeroCrossingLOG" method
     :param img: Input image
-    :return: opencv solution, my implementation
+    :return: Edge matrix
     """
 
     return

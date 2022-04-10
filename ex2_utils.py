@@ -42,23 +42,27 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     # we can leave the kernel as is and use element-wise multiplication.
     result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
               for i in range(len(in_image))]
-    # return np.clip(np.array(result).astype('int'), 0, 255)
     # The function can return negative values (useful for laplacian)
-    return np.array(result).astype('int')
+    return np.array(result)
 
 
+# https://lilianweng.github.io/posts/2017-10-29-object-recognition-part-1/
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     """
     Calculate gradient of an image
     :param in_image: Grayscale iamge
     :return: (directions, magnitude)
     """
-    x_kernel = np.array([[-1, 0, 1]])  # Horizontal vector
+    x_kernel = np.array([[1, 0, -1]]) # Horizontal vector
     y_kernel = x_kernel.T  # Vertical vector
-    x = np.clip(conv2D(in_image, x_kernel), 0, 255) / 255.0
-    y = np.clip(conv2D(in_image, y_kernel), 0, 255) / 255.0
-    magnitude = np.sqrt(x ** 2 + y ** 2)
-    directions = np.arctan(np.divide(y, x, out=np.zeros_like(y), where=x != 0))
+    x = conv2D(in_image, x_kernel) / 255.0
+    y = conv2D(in_image, y_kernel) / 255.0
+    # # theta = -pi or p1 where x=0
+    # # the result should be degree (np.arctan2 returns radians)
+    # # check more here: http://library.isr.ist.utl.pt/docs/numpy/reference/generated/numpy.arctan2.html
+    # directions = np.rad2deg(np.arctan2(y, x))
+    directions = np.arctan2(y, x).astype(np.float64)
+    magnitude = np.sqrt(x ** 2 + y ** 2).astype(np.float64)
     return directions, magnitude
 
 
@@ -139,66 +143,114 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
 
 # https://theailearner.com/tag/hough-gradient-method/
 # https://pyimagesearch.com/2021/05/12/image-gradients-with-opencv-sobel-and-scharr/
-def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
+# def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
+#     """
+#     Find Circles in an image using a Hough Transform algorithm extension
+#     To find Edges you can Use OpenCV function: cv2.Canny
+#     :param img: Input image
+#     :param min_radius: Minimum circle radius
+#     :param max_radius: Maximum circle radius
+#     :return: A list containing the detected circles,
+#                 [(x,y,radius),(x,y,radius),...]
+#     """
+#     img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
+#     plt.imshow(img, cmap='gray')
+#     plt.show()
+#     circles = np.zeros((len(img), len(img[0]), max_radius + 1))
+#
+#     # for x in range(len(img)):
+#     #     for y in range(len(img[0])):
+#     #         for radius in range(min_radius, max_radius + 1):
+#     #             if img[x][y] == 1:
+#     #                 diameter = 2 * radius + 1
+#     #                 start_x = x - radius
+#     #                 start_y = y - radius
+#     #                 for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
+#     #                     for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
+#     #                         if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
+#     #                             # mat[i][j] = radius
+#     #                             circles[i][j][radius] = circles[i][j][radius] + 1
+#     # result = []
+#     # print("f")
+#     # for x in range(len(img)):
+#     #     for y in range(len(img[0])):
+#     #         for z in range(min_radius, max_radius + 1):
+#     #             if circles[x][y][z] >= np.floor(2 * np.pi * z / 2):
+#     #                 print(circles[x][y][z])
+#     #                 result.append(x, y, z)
+#     directions, magnitude = convDerivative(img)
+#     magnitude = magnitude * 255
+#     circles = np.zeros((len(img), len(img[0]), max_radius + 1))
+#     for r in range(min_radius, max_radius + 1):
+#         #print("g")
+#         for x in range(len(img)):
+#             # print("gg")
+#             for y in range(len(img[0])):
+#                 #for t in range(0, 360):
+#                 t = magnitude[x][y]
+#                 b = y - r * np.sin(t * np.pi / 180)  # polar coordinate for center(convert to radians)
+#                 a = x - r * np.cos(t * np.pi / 180)  # polar coordinate for center(convert to radians)
+#                 if a < 0 or a > len(img)-1 or b < 0 or b > len(img[0])-1:
+#                     continue
+#                 circles[int(a)][int(b)][int(r)] = circles[int(a)][int(b)][int(r)] + 1
+#
+#     result = []
+#     print("f")
+#     for x in range(len(img)):
+#         for y in range(len(img[0])):
+#             for z in range(min_radius, max_radius + 1):
+#                 if circles[x][y][z] > 2:
+#                     print(circles[x][y][z])
+#                     result.append([x, y, z])
+#     return result
+
+
+
+
+
+def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
     """
     Find Circles in an image using a Hough Transform algorithm extension
-    To find Edges you can Use OpenCV function: cv2.Canny
     :param img: Input image
     :param min_radius: Minimum circle radius
     :param max_radius: Maximum circle radius
     :return: A list containing the detected circles,
-                [(x,y,radius),(x,y,radius),...]
+    [(x,y,radius),(x,y,radius),...]
     """
-    img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
-    plt.imshow(img, cmap='gray')
-    plt.show()
-    circles = np.zeros((len(img), len(img[0]), max_radius + 1))
+    img = (img * 255).astype(np.uint8)
+    img_h, img_w = img.shape
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+    img = cv2.Canny(img, 50, 100)
+    x_y_edges = np.argwhere(img > 0)
+    A = np.zeros((max_radius, img_h + 2 * max_radius, img_w + 2 * max_radius))
+    theta = np.arange(0, 360) * np.pi / 180
+    for r in range(round(min_radius), round(max_radius)):
+        # Creating a Circle Blueprint
+        bprint = np.zeros((2 * (r+1), 2 * (r+1)))
+        (x_0, y_0) = (r+1, r+1)  # the center of the blueprint
+        for angle in theta:
+            x = int(np.round(r * np.cos(angle)))
+            y = int(np.round(r * np.sin(angle)))
+            bprint[x_0 + x, y_0 + y] = 1
+        constant = np.argwhere(bprint).shape[0]
 
-    # for x in range(len(img)):
-    #     for y in range(len(img[0])):
-    #         for radius in range(min_radius, max_radius + 1):
-    #             if img[x][y] == 1:
-    #                 diameter = 2 * radius + 1
-    #                 start_x = x - radius
-    #                 start_y = y - radius
-    #                 for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
-    #                     for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
-    #                         if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
-    #                             # mat[i][j] = radius
-    #                             circles[i][j][radius] = circles[i][j][radius] + 1
-    # result = []
-    # print("f")
-    # for x in range(len(img)):
-    #     for y in range(len(img[0])):
-    #         for z in range(min_radius, max_radius + 1):
-    #             if circles[x][y][z] >= np.floor(2 * np.pi * z / 2):
-    #                 print(circles[x][y][z])
-    #                 result.append(x, y, z)
-    directions, magnitude = convDerivative(img)
-    magnitude = magnitude * 255
-    circles = np.zeros((len(img), len(img[0]), max_radius + 1))
-    for r in range(min_radius, max_radius + 1):
-        #print("g")
-        for x in range(len(img)):
-            # print("gg")
-            for y in range(len(img[0])):
-                #for t in range(0, 360):
-                t = magnitude[x][y]
-                b = y - r * np.sin(t * np.pi / 180)  # polar coordinate for center(convert to radians)
-                a = x - r * np.cos(t * np.pi / 180)  # polar coordinate for center(convert to radians)
-                if a < 0 or a > len(img)-1 or b < 0 or b > len(img[0])-1:
-                    continue
-                circles[int(a)][int(b)][int(r)] = circles[int(a)][int(b)][int(r)] + 1
+        for x, y in x_y_edges:  # For each edge coordinates
+            A[r, x - x_0 + max_radius:x + x_0 + max_radius, y - y_0 + max_radius:y + y_0 + max_radius] += bprint
+        threshold = 7
+        A[r][A[r] < threshold * constant / r] = 0  # threshold
 
-    result = []
-    print("f")
-    for x in range(len(img)):
-        for y in range(len(img[0])):
-            for z in range(min_radius, max_radius + 1):
-                if circles[x][y][z] > 2:
-                    print(circles[x][y][z])
-                    result.append([x, y, z])
-    return result
+    # Extracting the circle information
+    B = np.zeros((max_radius, img_h + 2 * max_radius, img_w + 2 * max_radius))
+    region = 15  # Size to detect peaks
+    for r, x, y in np.argwhere(A):
+        environment = A[r - region:r + region, x - region:x + region, y - region:y + region]
+        p, a, b = np.unravel_index(np.argmax(environment), environment.shape)
+        B[r + (p - region), x + (a - region), y + (b - region)] = 1
+    circleCoordinates = np.argwhere(B[:, max_radius:-max_radius, max_radius:-max_radius])
+    return circleCoordinates
+
+
+
 
 
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (

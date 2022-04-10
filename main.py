@@ -127,27 +127,31 @@ if __name__ == '__main__':
     img[5][2] = img[5][3] = img[5][4] = 1
     img[2][1] = img[3][1] = img[4][1] = 1
     img[2][5] = img[3][5] = img[4][5] = 1
+    img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE)
+    img = cv2.Canny(img, 175, 175) / 255
     min_radius = 2
     max_radius = 3
     directions, magnitude = convDerivative(img)
     #print(directions)
-    # print(directions * 255)
-    # f, ax = plt.subplots(1, 2)
-    # ax[0].set_title('Ori')
-    # ax[1].set_title('Mag')
-    # ax[0].imshow(directions)
-    # ax[1].imshow(magnitude)
-    # plt.show()
-
-    img = cv2.imread('testcircle.jpg', cv2.IMREAD_GRAYSCALE)
-    gX = cv2.Sobel(img, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=3)
-    gY = cv2.Sobel(img, ddepth=cv2.CV_32F, dx=0, dy=1, ksize=3)
-    gX = cv2.convertScaleAbs(gX)
-    gY = cv2.convertScaleAbs(gY)
-    combined = cv2.addWeighted(gX, 0.5, gY, 0.5, 0)
-    print(combined)
-    plt.imshow(combined)
+    np.set_printoptions(threshold=np.inf)
+    print(directions * 255)
+    f, ax = plt.subplots(1, 2)
+    ax[0].set_title('Ori')
+    ax[1].set_title('Mag')
+    ax[0].imshow(directions)
+    ax[1].imshow(magnitude)
     plt.show()
+
+    # #img = cv2.imread('testcircle.jpg', cv2.IMREAD_GRAYSCALE)
+    # # compute gradients along the x and y axis, respectively
+    # gX = cv2.Sobel(img, cv2.CV_64F, 1, 0)
+    # gY = cv2.Sobel(img, cv2.CV_64F, 0, 1)
+    # # compute the gradient magnitude and orientation
+    # magnitude = np.sqrt((gX ** 2) + (gY ** 2))
+    # orientation = np.arctan2(gY, gX) * (180 / np.pi) % 180
+    # print(orientation)
+    # plt.imshow(orientation)
+    # plt.show()
 
 
     # result = np.zeros((len(img), len(img[0]), max_radius + 1))

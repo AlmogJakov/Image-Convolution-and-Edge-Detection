@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ex2_utils import conv1D, conv2D, convDerivative, blurImage1, blurImage2
+from ex2_utils import conv1D, conv2D, convDerivative, blurImage1, blurImage2, edgeDetectionZeroCrossingSimple
 
 
 def print_hi(name):
@@ -68,17 +68,17 @@ if __name__ == '__main__':
     #      [-1,0,1],
     #      [2, 3, 4]]
 
-    img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
-    kernel = np.ones((5, 5))
-    kernel = kernel / kernel.sum()
-    # print(kernel)
-    # c_img = conv2D(img, kernel) / 255
-    # print(c_img)
+    # img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
+    # kernel = np.ones((5, 5))
+    # kernel = kernel / kernel.sum()
+    # # print(kernel)
+    # # c_img = conv2D(img, kernel) / 255
+    # # print(c_img)
+    # # print()
+    # print(img)
+    # cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
     # print()
-    print(img)
-    cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
-    print()
-    print(cv_img)
+    # print(cv_img)
     # print("Max Error: {}".format(np.abs(c_img - cv_img).max() * 255))
 
 
@@ -99,5 +99,7 @@ if __name__ == '__main__':
     # # plt.show()
     #
     # blurImage1(img, k_size)
-
+    print((1 ^ -1))
+    img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
+    edgeDetectionZeroCrossingSimple(img)
 

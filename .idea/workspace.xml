@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ex2_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex2_main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ex2_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex2_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,8 +92,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.ex2_main" />
-        <item itemvalue="Python.ex2_utils" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.ex2_utils" />
       </list>
     </recent_temporary>
   </component>

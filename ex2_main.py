@@ -27,8 +27,9 @@ def blurDemo():
 
 
 def edgeDemoSimple():
-    img = cv2.imread('input/codeMonkey.jpg', cv2.IMREAD_GRAYSCALE) / 255
-    img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
+    img = cv2.imread('input/cln2.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    #img = cv2.imread('input/codeMonkey.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    #img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
     edge_matrix = edgeDetectionZeroCrossingSimple(img)
 
     f, ax = plt.subplots(1, 2)
@@ -40,8 +41,9 @@ def edgeDemoSimple():
 
 
 def edgeDemoLOG():
-    img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
-    img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
+    img = cv2.imread('input/cln2.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    #img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    #img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
     edge_matrix = edgeDetectionZeroCrossingLOG(img)
 
     f, ax = plt.subplots(1, 2)
@@ -155,8 +157,8 @@ def main():
     # conv1Demo()
     # conv2Demo()
     # derivDemo()
-    blurDemo()
-    # edgeDemo()
+    # blurDemo()
+    edgeDemo()
     # houghDemo()
     # biliteralFilterDemo()
 

@@ -23,18 +23,6 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     return result[0:result_len]
 
 
-# def con(img: np.ndarray, kernel: np.ndarray) -> np.integer:
-#     kernelColumns = kernel.shape[1]
-#     kernelRows = kernel.shape[0]
-#     imgColumns = kernel.shape[1] - 1
-#     imgRows = kernel.shape[0] - 1
-#     sum = 0
-#     for i in range(kernelRows):
-#         for j in range(kernelColumns):
-#             sum = sum + kernel[i, j] * img[imgRows - i, imgColumns - j]
-#     return sum
-
-
 # TODO: conv as we saw in the lecture
 def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     """
@@ -44,21 +32,18 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     :return: The convolved image
     """
     if kernel.ndim == 1:
-        kernel = np.array([kernel]).T  # To 2D vertical vector (note the extra square brackets)
+        kernel = np.array([kernel]).T  # To 2D vertical vector (note the extra square brackets).
     k_row = len(kernel)
     k_col = len(kernel[0])
     half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
     new_img = np.pad(in_image, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
-    # Instead of flipping the kernel twice and using the formula
+    # Instead of flipping the kernel twice and use the regular convolution formula
     # we can leave the kernel as is and use element-wise multiplication.
     result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
               for i in range(len(in_image))]
-
-    # kernel = np.flip(np.flip(kernel))
-    # result = [[(np.round(con(new_img[i:i + k_row, j:j + k_col], kernel))) for j in range(len(in_image[0]))]
-    #           for i in range(len(in_image))]
-
-    return np.clip(np.array(result).astype('int'), 0, 255)
+    # return np.clip(np.array(result).astype('int'), 0, 255)
+    # The function can return negative values (useful for laplacian)
+    return np.array(result).astype('int')
 
 
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
@@ -69,8 +54,8 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     """
     x_kernel = np.array([[-1, 0, 1]])  # Horizontal vector
     y_kernel = x_kernel.T  # Vertical vector
-    x = conv2D(in_image, x_kernel) / 255.0
-    y = conv2D(in_image, y_kernel) / 255.0
+    x = np.clip(conv2D(in_image, x_kernel), 0, 255) / 255.0
+    y = np.clip(conv2D(in_image, y_kernel), 0, 255) / 255.0
     magnitude = np.sqrt(x ** 2 + y ** 2)
     directions = np.arctan(np.divide(y, x, out=np.zeros_like(y), where=x != 0))
     return directions, magnitude
@@ -97,7 +82,7 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     f = math.factorial
     bin_vector = np.array([[f(k_size - 1) // f(i) // f(k_size - 1 - i) for i in range(k_size)]])
     kernel = np.dot(bin_vector.T, bin_vector)
-    normalized_kernel = kernel * (1 / np.sum(kernel))
+    normalized_kernel = kernel * (1 / np.sum(kernel)) if ((np.sum(kernel)) != 0) else np.zeros(kernel.shape)
     # return cv2.filter2D(in_image * 255.0, -1, normalized_kernel, borderType=cv2.BORDER_REPLICATE) / 255
     return conv2D(in_image * 255.0, normalized_kernel) / 255
 
@@ -118,8 +103,12 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
-
-    return
+    new_img = np.pad(img, ((1, 1), (1, 1)), mode='edge')
+    laplacian_matrix = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+    mat = conv2D(new_img * 255.0, laplacian_matrix)
+    result = [[(1 if (mat[i][j] ^ mat[i][j+2] < 0) or (mat[i][j] ^ mat[i+2][j] < 0) else 0) for j in range(len(img[0]))]
+              for i in range(len(img))]
+    return np.array(result).astype('float32')
 
 
 def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
@@ -128,8 +117,8 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
-
-    return
+    new_img = blurImage1(img, 5)
+    return edgeDetectionZeroCrossingSimple(new_img)
 
 
 def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:

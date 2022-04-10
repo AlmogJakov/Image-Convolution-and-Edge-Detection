@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from cv2 import cv2
+import matplotlib.pyplot as plt
 
 
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
@@ -79,6 +80,7 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
+    # https://docs.opencv.org/3.4/da/d5c/tutorial_canny_detector.html TODO: fix Gaussian kernel
     f = math.factorial
     bin_vector = np.array([[f(k_size - 1) // f(i) // f(k_size - 1 - i) for i in range(k_size)]])
     kernel = np.dot(bin_vector.T, bin_vector)
@@ -106,8 +108,22 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
     new_img = np.pad(img, ((1, 1), (1, 1)), mode='edge')
     laplacian_matrix = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
     mat = conv2D(new_img * 255.0, laplacian_matrix)
-    result = [[(1 if (mat[i][j] ^ mat[i][j+2] < 0) or (mat[i][j] ^ mat[i+2][j] < 0) else 0) for j in range(len(img[0]))]
-              for i in range(len(img))]
+    # result = [[(1 if (mat[i][j] > 0 and mat[i][j + 2] < 0) or (mat[i][j] > 0 and mat[i + 2][j] < 0) else 0) for j in
+    #            range(len(img[0]))] for i in range(len(img))]
+    # result = [
+    #     [(1 if (((mat[i + 1][j] > 0) and (mat[i + 1][j + 2] < 0) and (np.abs(mat[i + 1][j] - mat[i + 1][j + 2] > 10)))
+    #             or ((mat[i][j + 1] > 0) and (mat[i + 2][j + 1] < 0) and (
+    #                 np.abs(mat[i][j + 1] - mat[i + 2][j + 1] > 10)))) else 0) for j in
+    #      range(len(img[0]))] for i in range(len(img))]
+
+    result = [
+        [(1 if ((mat[i + 1][j + 1] > 0) and (mat[i + 1][j + 2] < 0))
+               or ((mat[i + 1][j + 1] > 0) and (mat[i + 1][j] < 0))
+               or ((mat[i + 1][j + 1] > 0) and (mat[i + 2][j + 1] < 0))
+               or ((mat[i + 1][j + 1] > 0) and (mat[i][j + 1] < 0))
+          else 0) for j in
+         range(len(img[0]))] for i in range(len(img))]
+
     return np.array(result).astype('float32')
 
 
@@ -117,7 +133,7 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
-    new_img = blurImage1(img, 5)
+    new_img = blurImage2(img, 2)
     return edgeDetectionZeroCrossingSimple(new_img)
 
 
@@ -131,8 +147,32 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     :return: A list containing the detected circles,
                 [(x,y,radius),(x,y,radius),...]
     """
+    img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
+    plt.imshow(img, cmap='gray')
+    plt.show()
+    circles = np.zeros((len(img), len(img[0]), max_radius + 1))
 
-    return
+    for x in range(len(img)):
+        for y in range(len(img[0])):
+            for radius in range(min_radius, max_radius + 1):
+                if img[x][y] == 1:
+                    diameter = 2 * radius + 1
+                    start_x = x - radius
+                    start_y = y - radius
+                    for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
+                        for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
+                            if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
+                                # mat[i][j] = radius
+                                circles[i][j][radius] = circles[i][j][radius] + 1
+    result = []
+    print("f")
+    for x in range(len(img)):
+        for y in range(len(img[0])):
+            for z in range(min_radius, max_radius + 1):
+                if circles[x][y][z] >= np.floor(2 * np.pi * z / 2):
+                    print(circles[x][y][z])
+                    result.append(x, y, z)
+    return result
 
 
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (

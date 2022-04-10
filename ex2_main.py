@@ -27,7 +27,7 @@ def blurDemo():
 
 
 def edgeDemoSimple():
-    img = cv2.imread('input/cln2.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('input/cln.jpg', cv2.IMREAD_GRAYSCALE) / 255
     #img = cv2.imread('input/codeMonkey.jpg', cv2.IMREAD_GRAYSCALE) / 255
     #img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
     edge_matrix = edgeDetectionZeroCrossingSimple(img)
@@ -41,7 +41,7 @@ def edgeDemoSimple():
 
 
 def edgeDemoLOG():
-    img = cv2.imread('input/cln2.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('input/cln.jpg', cv2.IMREAD_GRAYSCALE) / 255
     #img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
     #img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
     edge_matrix = edgeDetectionZeroCrossingLOG(img)
@@ -103,7 +103,7 @@ def conv1Demo():
 
 def conv2Demo():
     img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
-    kernel = np.ones((4, 4))
+    kernel = np.ones((5, 5))
     kernel = kernel / kernel.sum()
     c_img = conv2D(img, kernel) / 255
     cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
@@ -158,8 +158,8 @@ def main():
     # conv2Demo()
     # derivDemo()
     # blurDemo()
-    edgeDemo()
-    # houghDemo()
+    # edgeDemo()
+    houghDemo()
     # biliteralFilterDemo()
 
 

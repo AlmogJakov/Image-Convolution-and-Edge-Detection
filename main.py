@@ -8,7 +8,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ex2_utils import conv1D, conv2D, convDerivative, blurImage1, blurImage2, edgeDetectionZeroCrossingSimple
+from ex2_utils import conv1D, conv2D, convDerivative, blurImage1, blurImage2, edgeDetectionZeroCrossingSimple, \
+    houghCircle
 
 
 def print_hi(name):
@@ -81,7 +82,6 @@ if __name__ == '__main__':
     # print(cv_img)
     # print("Max Error: {}".format(np.abs(c_img - cv_img).max() * 255))
 
-
     # img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
     # # print()
     # k_size = 3
@@ -99,7 +99,58 @@ if __name__ == '__main__':
     # # plt.show()
     #
     # blurImage1(img, k_size)
-    print((1 ^ -1))
-    img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
-    edgeDetectionZeroCrossingSimple(img)
 
+    # print((1 ^ -1))
+    # img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
+    # edgeDetectionZeroCrossingSimple(img)
+
+    # img = cv2.imread('input/cln.jpg', cv2.IMREAD_GRAYSCALE)
+    # houghCircle(img, 0 ,0)
+
+    # mat = np.zeros((20, 20))
+    # x = 4
+    # y = 4
+    # min_radius = 3
+    # max_radius = 4
+    # for radius in range(min_radius, max_radius + 1):
+    #     diameter = 2 * radius + 1
+    #     start_x = x - radius
+    #     start_y = y - radius
+    #     for i in range(max(0, start_x), min(len(mat) - 1, start_x + diameter)):
+    #         for j in range(max(0, start_y), min(len(mat[0]) - 1, start_y + diameter)):
+    #             if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
+    #                 mat[i][j] = radius
+    # print(mat)
+
+    img = np.zeros((20, 20))
+    img[1][2] = img[1][3] = img[1][4] = 1
+    img[5][2] = img[5][3] = img[5][4] = 1
+    img[2][1] = img[3][1] = img[4][1] = 1
+    img[2][5] = img[3][5] = img[4][5] = 1
+    min_radius = 2
+    max_radius = 3
+    directions, magnitude = convDerivative(img)
+    print(directions)
+    result = np.zeros((len(img), len(img[0]), max_radius + 1))
+
+    # mat = np.zeros((20, 20))
+    # x = 3
+    # y = 3
+    # for x in range(len(img)):
+    #     for y in range(len(img[0])):
+    #         for radius in range(min_radius, max_radius + 1):
+    #             diameter = 2 * radius + 1
+    #             start_x = x - radius
+    #             start_y = y - radius
+    #             for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
+    #                 for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
+    #                     if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
+    #                         # mat[i][j] = radius
+    #                         result[i][j][radius] = result[i][j][radius] + 1
+    # # print(mat)
+    # print()
+    # for x in range(len(img)):
+    #     for y in range(len(img[0])):
+    #         for z in range(radius + 1):
+    #             if result[x][y][z] >= np.floor(2 * np.pi * radius):
+    #                 print(result[x][y][z])

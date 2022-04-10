@@ -23,17 +23,16 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     return result[0:result_len]
 
 
-def con(img: np.ndarray, kernel: np.ndarray) -> np.integer:
-    kernelColumns = kernel.shape[1]
-    kernelRows = kernel.shape[0]
-    imgColumns = kernel.shape[1] - 1
-    imgRows = kernel.shape[0] - 1
-    sum = 0
-    # print(img)
-    for i in range(kernelRows):
-        for j in range(kernelColumns):
-            sum = sum + kernel[i, j] * img[imgRows - i, imgColumns - j]
-    return sum
+# def con(img: np.ndarray, kernel: np.ndarray) -> np.integer:
+#     kernelColumns = kernel.shape[1]
+#     kernelRows = kernel.shape[0]
+#     imgColumns = kernel.shape[1] - 1
+#     imgRows = kernel.shape[0] - 1
+#     sum = 0
+#     for i in range(kernelRows):
+#         for j in range(kernelColumns):
+#             sum = sum + kernel[i, j] * img[imgRows - i, imgColumns - j]
+#     return sum
 
 
 # TODO: conv as we saw in the lecture
@@ -50,41 +49,16 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     k_col = len(kernel[0])
     half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
     new_img = np.pad(in_image, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
-    # result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
-    #           for i in range(len(in_image))]
-    kernel = np.flip(np.flip(kernel))
-    result = [[(np.round(con(new_img[i:i + k_row, j:j + k_col], kernel))) for j in range(len(in_image[0]))]
+    # Instead of flipping the kernel twice and using the formula
+    # we can leave the kernel as is and use element-wise multiplication.
+    result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
               for i in range(len(in_image))]
-    return np.clip(np.array(result).astype('int'), 0, 255)
 
-    # # make sure both X and H are 2-D
-    # half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
-    # new_img = np.pad(in_image, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
-    # X = new_img
-    # H = kernel
-    # assert (X.ndim == 2)
-    # assert (H.ndim == 2)
-    # # get the horizontal and vertical size of X and H
-    # imageColumns = in_image.shape[1]
-    # imageRows = in_image.shape[0]
-    # kernelColumns = H.shape[1]
-    # kernelRows = H.shape[0]
-    # # calculate the horizontal and vertical size of Y (assume "full" convolution)
-    # newRows = imageRows
-    # newColumns = imageColumns
-    # # create an empty output array
-    # Y = np.zeros((newRows, newColumns))
-    # # go over output locations
-    # for m in range(newRows):
-    #     for n in range(newColumns):
-    #         # go over input locations
-    #         for i in range(kernelRows):
-    #             for j in range(kernelColumns):
-    #                 if (m - i >= 0) and (m - i < imageRows) and (n - j >= 0) and (n - j < imageColumns):
-    #                     Y[m, n] = Y[m, n] + H[i, j] * X[m - i, n - j]
-    #         # make sure kernel is within bounds
-    #         # calculate the convolution sum
-    # return Y
+    # kernel = np.flip(np.flip(kernel))
+    # result = [[(np.round(con(new_img[i:i + k_row, j:j + k_col], kernel))) for j in range(len(in_image[0]))]
+    #           for i in range(len(in_image))]
+
+    return np.clip(np.array(result).astype('int'), 0, 255)
 
 
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):

@@ -153,9 +153,9 @@ def biliteralFilterDemo():
 
 def main():
     # conv1Demo()
-    conv2Demo()
+    # conv2Demo()
     # derivDemo()
-    # blurDemo()
+    blurDemo()
     # edgeDemo()
     # houghDemo()
     # biliteralFilterDemo()

@@ -55,13 +55,15 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     """
     x_kernel = np.array([[1, 0, -1]]) # Horizontal vector
     y_kernel = x_kernel.T  # Vertical vector
-    x = conv2D(in_image, x_kernel) / 255.0
-    y = conv2D(in_image, y_kernel) / 255.0
-    # # theta = -pi or p1 where x=0
-    # # the result should be degree (np.arctan2 returns radians)
-    # # check more here: http://library.isr.ist.utl.pt/docs/numpy/reference/generated/numpy.arctan2.html
-    # directions = np.rad2deg(np.arctan2(y, x))
+    x = conv2D(in_image * 255.0, x_kernel) / 255.0
+    y = conv2D(in_image * 255.0, y_kernel) / 255.0
+    # theta = -pi or p1 where x=0
+    # the result should be degree ('np.arctan2' returns radians)
+    # check more here: http://library.isr.ist.utl.pt/docs/numpy/reference/generated/numpy.arctan2.html
+    #directions = np.rad2deg(np.arctan2(y, x).astype(np.float64))
     directions = np.arctan2(y, x).astype(np.float64)
+    np.set_printoptions(threshold=np.inf)
+    print(np.rad2deg(directions))
     magnitude = np.sqrt(x ** 2 + y ** 2).astype(np.float64)
     return directions, magnitude
 

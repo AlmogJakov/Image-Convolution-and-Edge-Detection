@@ -128,13 +128,14 @@ if __name__ == '__main__':
     img[2][1] = img[3][1] = img[4][1] = 1
     img[2][5] = img[3][5] = img[4][5] = 1
     img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE)
+    directions, magnitude = convDerivative(img / 255)
     img = cv2.Canny(img, 175, 175) / 255
     min_radius = 2
     max_radius = 3
-    directions, magnitude = convDerivative(img)
+
     #print(directions)
     np.set_printoptions(threshold=np.inf)
-    print(directions * 255)
+    # print(directions)
     f, ax = plt.subplots(1, 2)
     ax[0].set_title('Ori')
     ax[1].set_title('Mag')

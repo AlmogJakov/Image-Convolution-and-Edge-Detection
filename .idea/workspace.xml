@@ -25,7 +25,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
-  <component name="RunManager" selected="Python.ex2_main">
+  <component name="RunManager" selected="Python.main">
     <configuration name="ex2_main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CVEX2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -91,9 +91,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.ex2_main" />
-        <item itemvalue="Python.ex2_utils" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.ex2_utils" />
+        <item itemvalue="Python.ex2_main" />
       </list>
     </recent_temporary>
   </component>

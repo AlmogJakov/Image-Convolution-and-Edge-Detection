@@ -2,10 +2,13 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import math
+
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
-from ex2_utils import conv1D, conv2D, convDerivative
+from ex2_utils import conv1D, conv2D, convDerivative, blurImage1, blurImage2
 
 
 def print_hi(name):
@@ -53,9 +56,10 @@ if __name__ == '__main__':
     # print(result)
     # print(cv2.filter2D(src, -1, np.int8(k), borderType=cv2.BORDER_REPLICATE))
 
-    img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
-    convDerivative(img)
-    kernel = np.ones((5, 5))
+    # img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
+    # convDerivative(img)
+    # kernel = np.ones((5, 5))
+
     # kernel = kernel / kernel.sum()
     # c_img = conv2D(img, kernel) / 255
     # cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
@@ -63,5 +67,37 @@ if __name__ == '__main__':
     # k = [[-4,-3,-2],
     #      [-1,0,1],
     #      [2, 3, 4]]
+
+    img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
+    kernel = np.ones((5, 5))
+    kernel = kernel / kernel.sum()
+    # print(kernel)
+    # c_img = conv2D(img, kernel) / 255
+    # print(c_img)
+    # print()
+    print(img)
+    cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
+    print()
+    print(cv_img)
+    # print("Max Error: {}".format(np.abs(c_img - cv_img).max() * 255))
+
+
+    # img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
+    # # print()
+    # k_size = 3
+    # # b1 = blurImage1(img, k_size)
+    # # b2 = blurImage2(img, k_size)
+    # # print(b1)
+    # # print()
+    # # print(b2)
+    # # print("Blurring MSE:{:.6f}".format(np.sqrt(np.power(b1 - b2, 2).mean())))
+    # #
+    # # f, ax = plt.subplots(1, 3)
+    # # ax[0].imshow(b1)
+    # # ax[1].imshow(b1 - b2)
+    # # ax[2].imshow(b2)
+    # # plt.show()
+    #
+    # blurImage1(img, k_size)
 
 

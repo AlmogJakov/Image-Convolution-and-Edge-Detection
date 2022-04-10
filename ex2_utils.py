@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import cv2
+from cv2 import cv2
 
 
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
@@ -23,6 +23,20 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     return result[0:result_len]
 
 
+def con(img: np.ndarray, kernel: np.ndarray) -> np.integer:
+    kernelColumns = kernel.shape[1]
+    kernelRows = kernel.shape[0]
+    imgColumns = kernel.shape[1] - 1
+    imgRows = kernel.shape[0] - 1
+    sum = 0
+    # print(img)
+    for i in range(kernelRows):
+        for j in range(kernelColumns):
+            sum = sum + kernel[i, j] * img[imgRows - i, imgColumns - j]
+    return sum
+
+
+# TODO: conv as we saw in the lecture
 def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     """
     Convolve a 2-D array with a given kernel
@@ -31,15 +45,46 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     :return: The convolved image
     """
     if kernel.ndim == 1:
-        kernel = np.array([kernel])
-        kernel = kernel.reshape(kernel.shape[::-1])
+        kernel = np.array([kernel]).T  # To 2D vertical vector (note the extra square brackets)
     k_row = len(kernel)
     k_col = len(kernel[0])
     half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
     new_img = np.pad(in_image, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
-    result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
+    # result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
+    #           for i in range(len(in_image))]
+    kernel = np.flip(np.flip(kernel))
+    result = [[(np.round(con(new_img[i:i + k_row, j:j + k_col], kernel))) for j in range(len(in_image[0]))]
               for i in range(len(in_image))]
     return np.clip(np.array(result).astype('int'), 0, 255)
+
+    # # make sure both X and H are 2-D
+    # half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
+    # new_img = np.pad(in_image, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
+    # X = new_img
+    # H = kernel
+    # assert (X.ndim == 2)
+    # assert (H.ndim == 2)
+    # # get the horizontal and vertical size of X and H
+    # imageColumns = in_image.shape[1]
+    # imageRows = in_image.shape[0]
+    # kernelColumns = H.shape[1]
+    # kernelRows = H.shape[0]
+    # # calculate the horizontal and vertical size of Y (assume "full" convolution)
+    # newRows = imageRows
+    # newColumns = imageColumns
+    # # create an empty output array
+    # Y = np.zeros((newRows, newColumns))
+    # # go over output locations
+    # for m in range(newRows):
+    #     for n in range(newColumns):
+    #         # go over input locations
+    #         for i in range(kernelRows):
+    #             for j in range(kernelColumns):
+    #                 if (m - i >= 0) and (m - i < imageRows) and (n - j >= 0) and (n - j < imageColumns):
+    #                     Y[m, n] = Y[m, n] + H[i, j] * X[m - i, n - j]
+    #         # make sure kernel is within bounds
+    #         # calculate the convolution sum
+    # return Y
 
 
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
@@ -48,23 +93,24 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     :param in_image: Grayscale iamge
     :return: (directions, magnitude)
     """
-    x_kernel = np.array([[1, 0, -1]])  # Horizontal vector
+    x_kernel = np.array([[-1, 0, 1]])  # Horizontal vector
     y_kernel = x_kernel.T  # Vertical vector
     x = conv2D(in_image, x_kernel) / 255.0
     y = conv2D(in_image, y_kernel) / 255.0
     magnitude = np.sqrt(x ** 2 + y ** 2)
-    # https://stackoverflow.com/questions/26248654/how-to-return-0-with-divide-by-zero
-    directions = np.arctan(np.divide(y, x, out=np.zeros_like(y), where=x!=0))
-    # directions = [[np.arctan(np.sum(new_img[i + 1:i + 2, j:j + 3] * y_kernel) ** 2 /
-    #                          np.sum(new_img[i:i + 3, j + 1:j + 2] * x_kernel) ** 2) for j in
-    #                range(len(in_image[0]))]
-    #               for i in range(len(in_image))]
-    # print(magnitude)
-    # print(directions)
-    # print(result)
-    # print()
-    # print(np.array(magnitude))
+    directions = np.arctan(np.divide(y, x, out=np.zeros_like(y), where=x != 0))
     return directions, magnitude
+
+
+'''
+2D Gaussian kernel Commonly approximated using the binomial coefficients:
+E.g for vector of binomial coefficients of size three: [1, 2, 1]
+     ___                 _______
+    | 1 |    _______    | 1 2 1 |
+    | 2 | X | 1 2 1 | = | 2 4 2 |
+    | 1 |   |_______|   | 1 2 1 |
+    |___|               |_______|
+'''
 
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
@@ -74,8 +120,12 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-
-    return
+    f = math.factorial
+    bin_vector = np.array([[f(k_size - 1) // f(i) // f(k_size - 1 - i) for i in range(k_size)]])
+    kernel = np.dot(bin_vector.T, bin_vector)
+    normalized_kernel = kernel * (1 / np.sum(kernel))
+    # return cv2.filter2D(in_image * 255.0, -1, normalized_kernel, borderType=cv2.BORDER_REPLICATE) / 255
+    return conv2D(in_image * 255.0, normalized_kernel) / 255
 
 
 def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
@@ -85,8 +135,7 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-
-    return
+    return cv2.blur(in_image, (k_size, k_size))
 
 
 def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:

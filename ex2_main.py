@@ -101,7 +101,7 @@ def conv1Demo():
 
 def conv2Demo():
     img = cv2.imread('input/beach.jpg', cv2.IMREAD_GRAYSCALE)
-    kernel = np.ones((5, 5))
+    kernel = np.ones((4, 4))
     kernel = kernel / kernel.sum()
     c_img = conv2D(img, kernel) / 255
     cv_img = cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REPLICATE) / 255
@@ -152,9 +152,9 @@ def biliteralFilterDemo():
 
 
 def main():
-    conv1Demo()
+    # conv1Demo()
     conv2Demo()
-    derivDemo()
+    # derivDemo()
     # blurDemo()
     # edgeDemo()
     # houghDemo()

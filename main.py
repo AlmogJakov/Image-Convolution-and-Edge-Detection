@@ -4,7 +4,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import math
 
-import cv2
+from cv2 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -130,8 +130,27 @@ if __name__ == '__main__':
     min_radius = 2
     max_radius = 3
     directions, magnitude = convDerivative(img)
-    print(directions)
-    result = np.zeros((len(img), len(img[0]), max_radius + 1))
+    #print(directions)
+    # print(directions * 255)
+    # f, ax = plt.subplots(1, 2)
+    # ax[0].set_title('Ori')
+    # ax[1].set_title('Mag')
+    # ax[0].imshow(directions)
+    # ax[1].imshow(magnitude)
+    # plt.show()
+
+    img = cv2.imread('testcircle.jpg', cv2.IMREAD_GRAYSCALE)
+    gX = cv2.Sobel(img, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=3)
+    gY = cv2.Sobel(img, ddepth=cv2.CV_32F, dx=0, dy=1, ksize=3)
+    gX = cv2.convertScaleAbs(gX)
+    gY = cv2.convertScaleAbs(gY)
+    combined = cv2.addWeighted(gX, 0.5, gY, 0.5, 0)
+    print(combined)
+    plt.imshow(combined)
+    plt.show()
+
+
+    # result = np.zeros((len(img), len(img[0]), max_radius + 1))
 
     # mat = np.zeros((20, 20))
     # x = 3

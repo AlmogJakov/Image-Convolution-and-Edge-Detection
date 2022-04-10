@@ -137,6 +137,8 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     return edgeDetectionZeroCrossingSimple(new_img)
 
 
+# https://theailearner.com/tag/hough-gradient-method/
+# https://pyimagesearch.com/2021/05/12/image-gradients-with-opencv-sobel-and-scharr/
 def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     """
     Find Circles in an image using a Hough Transform algorithm extension
@@ -152,26 +154,50 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     plt.show()
     circles = np.zeros((len(img), len(img[0]), max_radius + 1))
 
-    for x in range(len(img)):
-        for y in range(len(img[0])):
-            for radius in range(min_radius, max_radius + 1):
-                if img[x][y] == 1:
-                    diameter = 2 * radius + 1
-                    start_x = x - radius
-                    start_y = y - radius
-                    for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
-                        for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
-                            if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
-                                # mat[i][j] = radius
-                                circles[i][j][radius] = circles[i][j][radius] + 1
+    # for x in range(len(img)):
+    #     for y in range(len(img[0])):
+    #         for radius in range(min_radius, max_radius + 1):
+    #             if img[x][y] == 1:
+    #                 diameter = 2 * radius + 1
+    #                 start_x = x - radius
+    #                 start_y = y - radius
+    #                 for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
+    #                     for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
+    #                         if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
+    #                             # mat[i][j] = radius
+    #                             circles[i][j][radius] = circles[i][j][radius] + 1
+    # result = []
+    # print("f")
+    # for x in range(len(img)):
+    #     for y in range(len(img[0])):
+    #         for z in range(min_radius, max_radius + 1):
+    #             if circles[x][y][z] >= np.floor(2 * np.pi * z / 2):
+    #                 print(circles[x][y][z])
+    #                 result.append(x, y, z)
+    directions, magnitude = convDerivative(img)
+    magnitude = magnitude * 255
+    circles = np.zeros((len(img), len(img[0]), max_radius + 1))
+    for r in range(min_radius, max_radius + 1):
+        #print("g")
+        for x in range(len(img)):
+            # print("gg")
+            for y in range(len(img[0])):
+                #for t in range(0, 360):
+                t = magnitude[x][y]
+                b = y - r * np.sin(t * np.pi / 180)  # polar coordinate for center(convert to radians)
+                a = x - r * np.cos(t * np.pi / 180)  # polar coordinate for center(convert to radians)
+                if a < 0 or a > len(img)-1 or b < 0 or b > len(img[0])-1:
+                    continue
+                circles[int(a)][int(b)][int(r)] = circles[int(a)][int(b)][int(r)] + 1
+
     result = []
     print("f")
     for x in range(len(img)):
         for y in range(len(img[0])):
             for z in range(min_radius, max_radius + 1):
-                if circles[x][y][z] >= np.floor(2 * np.pi * z / 2):
+                if circles[x][y][z] > 2:
                     print(circles[x][y][z])
-                    result.append(x, y, z)
+                    result.append([x, y, z])
     return result
 
 

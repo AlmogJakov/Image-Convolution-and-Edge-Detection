@@ -3,6 +3,12 @@ import numpy as np
 from cv2 import cv2
 import matplotlib.pyplot as plt
 
+'''
+#################################################################################################################
+################################################ conv1D METHOD ##################################################
+#################################################################################################################
+'''
+
 
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     """
@@ -25,9 +31,16 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
 
 
 '''
+#################################################################################################################
+################################################ conv2D METHOD ##################################################
+#################################################################################################################
+'''
+'''
 'conv2D' Method:
-    Instead of flipping the kernel twice and use the regular convolution formula
+    Instead of flipping the kernel (matrix flipping) and use the regular convolution formula
     we can leave the kernel as is and use element-wise multiplication.
+    
+    The Method can return negative values! (useful for laplacian)
     
     OpenCV Implementation: https://github.com/opencv/opencv/blob/master/modules/imgproc/src/opencl/filter2D.cl
 '''
@@ -47,14 +60,16 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     k_col = len(kernel[0])
     half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
     new_img = np.pad(in_image, ((half_shape[0], half_shape[0]), (half_shape[1], half_shape[1])), mode='edge')
-    # Instead of flipping the kernel twice and use the regular convolution formula
-    # we can leave the kernel as is and use element-wise multiplication.
     result = [[(np.round(np.sum(new_img[i:i + k_row, j:j + k_col] * kernel))) for j in range(len(in_image[0]))]
               for i in range(len(in_image))]
-    # The function can return negative values (useful for laplacian)
     return np.array(result)
 
 
+'''
+#################################################################################################################
+############################################ convDerivative METHOD ##############################################
+#################################################################################################################
+'''
 '''
 'convDerivative' Method:
     About 'arctan2':
@@ -86,6 +101,11 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
 
 
 '''
+#################################################################################################################
+############################################## blurImage1 METHOD ################################################
+#################################################################################################################
+'''
+'''
 2D Gaussian kernel Commonly approximated using the binomial coefficients:
 E.g for vector of binomial coefficients of size three: [1, 2, 1]
      ___                 _______
@@ -112,6 +132,13 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     return conv2D(in_image * 255.0, normalized_kernel) / 255
 
 
+'''
+#################################################################################################################
+############################################## blurImage2 METHOD ################################################
+#################################################################################################################
+'''
+
+
 def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     """
     Blur an image using a Gaussian kernel using OpenCV built-in functions
@@ -120,6 +147,13 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :return: The Blurred image
     """
     return cv2.blur(in_image, (k_size, k_size))
+
+
+'''
+#################################################################################################################
+################################### edgeDetectionZeroCrossingSimple METHOD ######################################
+#################################################################################################################
+'''
 
 
 def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
@@ -131,14 +165,6 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
     new_img = np.pad(img, ((1, 1), (1, 1)), mode='edge')
     laplacian_matrix = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
     mat = conv2D(new_img * 255.0, laplacian_matrix)
-    # result = [[(1 if (mat[i][j] > 0 and mat[i][j + 2] < 0) or (mat[i][j] > 0 and mat[i + 2][j] < 0) else 0) for j in
-    #            range(len(img[0]))] for i in range(len(img))]
-    # result = [
-    #     [(1 if (((mat[i + 1][j] > 0) and (mat[i + 1][j + 2] < 0) and (np.abs(mat[i + 1][j] - mat[i + 1][j + 2] > 10)))
-    #             or ((mat[i][j + 1] > 0) and (mat[i + 2][j + 1] < 0) and (
-    #                 np.abs(mat[i][j + 1] - mat[i + 2][j + 1] > 10)))) else 0) for j in
-    #      range(len(img[0]))] for i in range(len(img))]
-
     result = [
         [(1 if ((mat[i + 1][j + 1] > 0) and (mat[i + 1][j + 2] < 0))
                or ((mat[i + 1][j + 1] > 0) and (mat[i + 1][j] < 0))
@@ -146,8 +172,14 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
                or ((mat[i + 1][j + 1] > 0) and (mat[i][j + 1] < 0))
           else 0) for j in
          range(len(img[0]))] for i in range(len(img))]
-
     return np.array(result).astype('float32')
+
+
+'''
+#################################################################################################################
+##################################### edgeDetectionZeroCrossingLOG METHOD #######################################
+#################################################################################################################
+'''
 
 
 def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
@@ -160,6 +192,11 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     return edgeDetectionZeroCrossingSimple(new_img)
 
 
+'''
+#################################################################################################################
+############################################# houghCircle METHOD ################################################
+#################################################################################################################
+'''
 '''
 'houghCircle' Method:
     Algorithm: https://theailearner.com/tag/hough-gradient-method/
@@ -234,6 +271,13 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     return result
 
 
+'''
+#################################################################################################################
+###################################### bilateral_filter_implement METHOD ########################################
+#################################################################################################################
+'''
+
+
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
         np.ndarray, np.ndarray):
     """
@@ -245,3 +289,25 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     """
 
     return
+
+
+'''
+#################################################################################################################
+################################################# That's it! ####################################################
+#################################################################################################################
+░░░░░░░░░░░░░░░░░░░░░░██████████████░░░░░░░░░
+░░███████░░░░░░░░░░███▒▒▒▒▒▒▒▒▒▒▒▒▒███░░░░░░░
+░░█▒▒▒▒▒▒█░░░░░░░███▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒███░░░░
+░░░█▒▒▒▒▒▒█░░░░██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██░░
+░░░░█▒▒▒▒▒█░░░██▒▒▒▒▒██▒▒▒▒▒▒▒▒▒▒▒██▒▒▒▒▒███░
+░░░░░█▒▒▒█░░░█▒▒▒▒▒▒████▒▒▒▒▒▒▒▒▒████▒▒▒▒▒▒██
+░░░█████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██
+░░░█▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒███▒▒▒▒▒▒▒▒▒▒▒▒██
+░██▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██▒▒▒▒██
+██▒▒▒███████████▒▒▒▒▒██▒▒▒▒▒▒▒▒▒▒▒▒▒██▒▒▒▒▒██
+█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒█████████████▒▒▒▒▒▒▒██
+██▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██░
+░█▒▒▒███████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██░░░
+░██▒▒▒▒▒▒▒▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█░░░░░
+░░████████████░░░██████████████████████░░░░░░
+'''

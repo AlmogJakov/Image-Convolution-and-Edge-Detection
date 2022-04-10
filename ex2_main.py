@@ -135,7 +135,7 @@ def derivDemo():
 
     ori = np.arctan2(Y, X).astype(np.float64)
     mag = np.sqrt(X ** 2 + Y ** 2).astype(np.float64)
-    #print(ori)
+
     f, ax = plt.subplots(1, 2)
     ax[0].set_title('Ori')
     ax[1].set_title('Mag')

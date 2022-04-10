@@ -24,6 +24,13 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     return result[0:result_len]
 
 
+'''
+'conv2D' Method:
+    Instead of flipping the kernel twice and use the regular convolution formula
+    we can leave the kernel as is and use element-wise multiplication.
+'''
+
+
 # TODO: conv as we saw in the lecture
 def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     """
@@ -46,6 +53,16 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     return np.array(result)
 
 
+'''
+'convDerivative' Method:
+    About 'arctan2':
+        in case of x=0: arctan2(y, x) returns theta = -pi or pi
+        Note! 'np.arctan2' returns Radian values!
+        And hence we want to returns degree values -> we use 'rad2deg' function. (multiply by 180 / pi).
+        check more here: http://library.isr.ist.utl.pt/docs/numpy/reference/generated/numpy.arctan2.html
+'''
+
+
 # https://lilianweng.github.io/posts/2017-10-29-object-recognition-part-1/
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     """
@@ -53,17 +70,11 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     :param in_image: Grayscale iamge
     :return: (directions, magnitude)
     """
-    x_kernel = np.array([[1, 0, -1]]) # Horizontal vector
+    x_kernel = np.array([[1, 0, -1]])  # Horizontal vector
     y_kernel = x_kernel.T  # Vertical vector
     x = conv2D(in_image * 255.0, x_kernel) / 255.0
     y = conv2D(in_image * 255.0, y_kernel) / 255.0
-    # theta = -pi or p1 where x=0
-    # the result should be degree ('np.arctan2' returns radians)
-    # check more here: http://library.isr.ist.utl.pt/docs/numpy/reference/generated/numpy.arctan2.html
-    #directions = np.rad2deg(np.arctan2(y, x).astype(np.float64))
-    directions = np.arctan2(y, x).astype(np.float64)
-    np.set_printoptions(threshold=np.inf)
-    print(np.rad2deg(directions))
+    directions = np.rad2deg(np.arctan2(y, x).astype(np.float64))
     magnitude = np.sqrt(x ** 2 + y ** 2).astype(np.float64)
     return directions, magnitude
 
@@ -207,9 +218,6 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
 #     return result
 
 
-
-
-
 def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
     """
     Find Circles in an image using a Hough Transform algorithm extension
@@ -228,8 +236,8 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
     theta = np.arange(0, 360) * np.pi / 180
     for r in range(round(min_radius), round(max_radius)):
         # Creating a Circle Blueprint
-        bprint = np.zeros((2 * (r+1), 2 * (r+1)))
-        (x_0, y_0) = (r+1, r+1)  # the center of the blueprint
+        bprint = np.zeros((2 * (r + 1), 2 * (r + 1)))
+        (x_0, y_0) = (r + 1, r + 1)  # the center of the blueprint
         for angle in theta:
             x = int(np.round(r * np.cos(angle)))
             y = int(np.round(r * np.sin(angle)))
@@ -250,9 +258,6 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
         B[r + (p - region), x + (a - region), y + (b - region)] = 1
     circleCoordinates = np.argwhere(B[:, max_radius:-max_radius, max_radius:-max_radius])
     return circleCoordinates
-
-
-
 
 
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (

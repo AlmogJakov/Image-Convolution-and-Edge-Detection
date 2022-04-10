@@ -132,8 +132,8 @@ if __name__ == '__main__':
     img = cv2.Canny(img, 175, 175) / 255
     min_radius = 2
     max_radius = 3
-
-    #print(directions)
+    np.set_printoptions(threshold=np.inf)
+    print(directions)
     np.set_printoptions(threshold=np.inf)
     # print(directions)
     f, ax = plt.subplots(1, 2)

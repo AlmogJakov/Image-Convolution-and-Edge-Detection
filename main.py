@@ -133,8 +133,10 @@ if __name__ == '__main__':
     min_radius = 2
     max_radius = 3
     np.set_printoptions(threshold=np.inf)
-    print(directions)
-    np.set_printoptions(threshold=np.inf)
+    merge = np.array([[directions[i][j] if img[i][j] != 0 else 0 for j in range(len(img[0]))] for i in range(len(img))])
+    new_merge = np.clip(merge * 255, 0, 255).astype('int')
+    plt.imshow(new_merge)
+    plt.show()
     # print(directions)
     f, ax = plt.subplots(1, 2)
     ax[0].set_title('Ori')

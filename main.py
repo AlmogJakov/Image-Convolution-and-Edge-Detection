@@ -122,61 +122,36 @@ if __name__ == '__main__':
     #                 mat[i][j] = radius
     # print(mat)
 
-    img = np.zeros((20, 20))
-    img[1][2] = img[1][3] = img[1][4] = 1
-    img[5][2] = img[5][3] = img[5][4] = 1
-    img[2][1] = img[3][1] = img[4][1] = 1
-    img[2][5] = img[3][5] = img[4][5] = 1
-    img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE)
-    directions, magnitude = convDerivative(img / 255)
-    img = cv2.Canny(img, 175, 175) / 255
-    min_radius = 2
-    max_radius = 3
-    np.set_printoptions(threshold=np.inf)
-    merge = np.array([[directions[i][j] if img[i][j] != 0 else 0 for j in range(len(img[0]))] for i in range(len(img))])
-    new_merge = np.clip(merge * 255, 0, 255).astype('int')
-    plt.imshow(new_merge)
-    plt.show()
-    # print(directions)
-    f, ax = plt.subplots(1, 2)
-    ax[0].set_title('Ori')
-    ax[1].set_title('Mag')
-    ax[0].imshow(directions)
-    ax[1].imshow(magnitude)
-    plt.show()
-
-    # #img = cv2.imread('testcircle.jpg', cv2.IMREAD_GRAYSCALE)
-    # # compute gradients along the x and y axis, respectively
-    # gX = cv2.Sobel(img, cv2.CV_64F, 1, 0)
-    # gY = cv2.Sobel(img, cv2.CV_64F, 0, 1)
-    # # compute the gradient magnitude and orientation
-    # magnitude = np.sqrt((gX ** 2) + (gY ** 2))
-    # orientation = np.arctan2(gY, gX) * (180 / np.pi) % 180
-    # print(orientation)
-    # plt.imshow(orientation)
+    # img = np.zeros((20, 20))
+    # img[1][2] = img[1][3] = img[1][4] = 1
+    # img[5][2] = img[5][3] = img[5][4] = 1
+    # img[2][1] = img[3][1] = img[4][1] = 1
+    # img[2][5] = img[3][5] = img[4][5] = 1
+    # img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE)
+    # directions, magnitude = convDerivative(img / 255)
+    # img = cv2.Canny(img, 175, 175) / 255
+    # min_radius = 2
+    # max_radius = 3
+    # np.set_printoptions(threshold=np.inf)
+    # merge = np.array([[directions[i][j] if img[i][j] != 0 else 0 for j in range(len(img[0]))] for i in range(len(img))])
+    # new_merge = np.clip(merge * 255, 0, 255).astype('int')
+    # plt.imshow(new_merge)
+    # plt.show()
+    # # print(directions)
+    # f, ax = plt.subplots(1, 2)
+    # ax[0].set_title('Ori')
+    # ax[1].set_title('Mag')
+    # ax[0].imshow(directions)
+    # ax[1].imshow(magnitude)
     # plt.show()
 
-
-    # result = np.zeros((len(img), len(img[0]), max_radius + 1))
-
-    # mat = np.zeros((20, 20))
-    # x = 3
-    # y = 3
-    # for x in range(len(img)):
-    #     for y in range(len(img[0])):
-    #         for radius in range(min_radius, max_radius + 1):
-    #             diameter = 2 * radius + 1
-    #             start_x = x - radius
-    #             start_y = y - radius
-    #             for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
-    #                 for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
-    #                     if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
-    #                         # mat[i][j] = radius
-    #                         result[i][j][radius] = result[i][j][radius] + 1
-    # # print(mat)
-    # print()
-    # for x in range(len(img)):
-    #     for y in range(len(img[0])):
-    #         for z in range(radius + 1):
-    #             if result[x][y][z] >= np.floor(2 * np.pi * radius):
-    #                 print(result[x][y][z])
+    img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE)
+    v = np.array([[1, 0, -1]])
+    X = cv2.filter2D(img, -1, v)
+    Y = cv2.filter2D(img, -1, v.T)
+    directions = np.arctan2(Y, X).astype(np.float64)
+    directions = np.rad2deg(directions)
+    np.set_printoptions(threshold=np.inf)
+    print(directions)
+    print((10 - 10 * np.sin(315 * np.pi / 180)))
+    print((10 + 10 * np.cos(315 * np.pi / 180)))

@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="01ba29c4-5d2c-4525-aaec-9192b741607b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ex2_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex2_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ex2_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/ex2_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -23,7 +25,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.ex2_main">
     <configuration name="ex2_main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CVEX2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -89,9 +91,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main" />
-        <item itemvalue="Python.ex2_utils" />
         <item itemvalue="Python.ex2_main" />
+        <item itemvalue="Python.ex2_utils" />
+        <item itemvalue="Python.main" />
       </list>
     </recent_temporary>
   </component>

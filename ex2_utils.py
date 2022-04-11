@@ -219,55 +219,74 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     :return: A list containing the detected circles,
                 [(x,y,radius),(x,y,radius),...]
     """
-    img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
-    plt.imshow(img, cmap='gray')
-    plt.show()
-    circles = np.zeros((len(img), len(img[0]), max_radius + 1))
+    # img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
+    # plt.imshow(img, cmap='gray')
+    # plt.show()
+    #img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE)
+    #img = blurImage2(img * 255, 5)
+    v = np.array([[1, 0, -1]])
+    X = cv2.filter2D(img, -1, v)
+    Y = cv2.filter2D(img, -1, v.T)
+    directions = np.arctan2(Y, X).astype(np.float64)
+    directions = np.rad2deg(directions) + 90
+    np.set_printoptions(threshold=np.inf)
+    print(directions)
 
-    # for x in range(len(img)):
-    #     for y in range(len(img[0])):
-    #         for radius in range(min_radius, max_radius + 1):
-    #             if img[x][y] == 1:
-    #                 diameter = 2 * radius + 1
-    #                 start_x = x - radius
-    #                 start_y = y - radius
-    #                 for i in range(max(0, start_x), min(len(img) - 1, start_x + diameter)):
-    #                     for j in range(max(0, start_y), min(len(img[0]) - 1, start_y + diameter)):
-    #                         if np.floor(np.sqrt((i - x) ** 2 + (j - y) ** 2) + 0.5) == radius:
-    #                             # mat[i][j] = radius
-    #                             circles[i][j][radius] = circles[i][j][radius] + 1
-    # result = []
-    # print("f")
-    # for x in range(len(img)):
-    #     for y in range(len(img[0])):
-    #         for z in range(min_radius, max_radius + 1):
-    #             if circles[x][y][z] >= np.floor(2 * np.pi * z / 2):
-    #                 print(circles[x][y][z])
-    #                 result.append(x, y, z)
-    directions, magnitude = convDerivative(img)
-    magnitude = magnitude * 255
+    # directions, magnitude = convDerivative(img)
+    img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
+
+    merge = np.array([[directions[i][j] if img[i][j] != 0 else 0 for j in range(len(img[0]))] for i in range(len(img))])
     circles = np.zeros((len(img), len(img[0]), max_radius + 1))
-    for r in range(min_radius, max_radius + 1):
-        # print("g")
-        for x in range(len(img)):
-            # print("gg")
-            for y in range(len(img[0])):
-                # for t in range(0, 360):
-                t = magnitude[x][y]
-                b = y - r * np.sin(t * np.pi / 180)  # polar coordinate for center(convert to radians)
-                a = x - r * np.cos(t * np.pi / 180)  # polar coordinate for center(convert to radians)
-                if a < 0 or a > len(img) - 1 or b < 0 or b > len(img[0]) - 1:
-                    continue
-                circles[int(a)][int(b)][int(r)] = circles[int(a)][int(b)][int(r)] + 1
+    print(circles.shape)
+    for x in range(len(img)):
+        # print("gg")
+        for y in range(len(img[0])):
+            if img[x][y] != 0:
+                for r in range(min_radius, max_radius + 1):
+                    # for t in range(0, 360):
+                    t = directions[x][y]
+                    # if t < 0:
+                    #     t = t + 360
+                    b = (y - r * np.sin(t * np.pi / 180))  # polar coordinate for center(convert to radians)
+                    a = (x - r * np.cos(t * np.pi / 180))  # polar coordinate for center(convert to radians)
+                    if a < 0 or a > len(img[0]) - 1 or b < 0 or b > len(img) - 1:
+                        continue
+                    circles[round(b)-round(b)%5][round(a)-round(a)%5][round(r)-round(r)%5] = circles[round(b)-round(b)%5][round(a)-round(a)%5][round(r)-round(r)%5] + 1
+
+                    opt = -directions[x][y]
+                    # if t < 0:
+                    #     t = t + 360
+                    opb = (y - r * np.sin(opt * np.pi / 180))  # polar coordinate for center(convert to radians)
+                    opa = (x - r * np.cos(opt * np.pi / 180))  # polar coordinate for center(convert to radians)
+                    if opa < 0 or opa > len(img[0]) - 1 or opb < 0 or opb > len(img) - 1:
+                        continue
+                    circles[round(opb) - round(opb) % 5][round(opa) - round(opa) % 5][round(r) - round(r) % 5] = \
+                    circles[round(opb) - round(opb) % 5][round(opa) - round(opa) % 5][round(r) - round(r) % 5] + 1
 
     result = []
+    x_cor = []
+    y_cor = []
     print("f")
+    maxx = 0
+    xx, yy, zz = 0, 0, 0
     for x in range(len(img)):
         for y in range(len(img[0])):
             for z in range(min_radius, max_radius + 1):
-                if circles[x][y][z] > 2:
-                    print(circles[x][y][z])
+                # if circles[x][y][z] > 2:
+                #     print(circles[x][y][z])
+                #     result.append([x, y, z])
+                if circles[x][y][z] > 10:
+                    x_cor.append(x)
+                    y_cor.append(y)
+                if circles[x][y][z] > 190:
+                    #maxx = circles[x][y][z]
+                    #xx, yy, zz = x, y, z
                     result.append([x, y, z])
+                    print([x, y, z])
+    # result.append([xx-100, yy, zz])
+    # print(result)
+    plt.scatter(np.array(x_cor), np.array(y_cor))
+    plt.show()
     return result
 
 

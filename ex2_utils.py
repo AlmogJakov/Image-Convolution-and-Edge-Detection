@@ -246,16 +246,16 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
 
                     a = (x - r * sin_t)  # polar coordinate for center(convert to radians)
                     b = (y + r * cos_t)  # polar coordinate for center(convert to radians)
-                    new_a = round(a) - (round(a) % bin_size - 1)
-                    new_b = round(b) - (round(b) % bin_size - 1)
+                    new_a = int(a - (a % bin_size - 1))
+                    new_b = int(b - (b % bin_size - 1))
                     if 0 <= new_a < len(img[0]) and 0 <= new_b < len(img):
                         circles[new_b][new_a][new_r] = circles[new_b][new_a][new_r] + 1
 
                     # negative direction of the line
                     opa = (x - r * sin_minus_t)  # polar coordinate for center(convert to radians)
                     opb = (y - r * cos_minus_t)  # polar coordinate for center(convert to radians)
-                    new_opa = round(opa) - (round(opa) % bin_size - 1)
-                    new_opb = round(opb) - (round(opb) % bin_size - 1)
+                    new_opa = int(opa - (opa % bin_size - 1))
+                    new_opb = int(opb - (opb % bin_size - 1))
                     if 0 <= new_opa < len(img[0]) and 0 <= new_opb < len(img):
                         circles[new_opb][new_opa][new_r] = circles[new_opb][new_opa][new_r] + 1
     result = []

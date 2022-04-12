@@ -227,6 +227,8 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     img = cv2.Canny((img * 255).astype(np.uint8), 50, 200) / 255
     plt.imshow(img)
     plt.show()
+    bin_size = 5
+    radius_bin_size = 4
     circles = np.zeros((len(img), len(img[0]), max_radius + 1))
     print(circles.shape)
     print(len(img))
@@ -234,30 +236,56 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
         for x in range(len(img[0])):
             if img[y][x] != 0:
                 t = directions[y][x]
+                sin_t = np.sin(t)
+                cos_t = np.cos(t)
+                sin_minus_t = np.sin(-t)
+                cos_minus_t = np.cos(-t)
                 for r in range(min_radius, max_radius + 1):
+                    new_r = round(r) - round(r) % radius_bin_size
                     # positive direction of the line
 
-                    a = (x - r * np.sin(t))  # polar coordinate for center(convert to radians)
-                    b = (y + r * np.cos(t))  # polar coordinate for center(convert to radians)
-                    if 0 < a < len(img[0]) and 0 < b < len(img):
-                        circles[round(b) - round(b) % 5 - 1][round(a) - round(a) % 5 - 1][round(r) - round(r) % 5] = \
-                            circles[round(b) - round(b) % 5 - 1][round(a) - round(a) % 5 - 1][round(r) - round(r) % 5] + 1
+                    a = (x - r * sin_t)  # polar coordinate for center(convert to radians)
+                    b = (y + r * cos_t)  # polar coordinate for center(convert to radians)
+                    new_a = round(a) - (round(a) % bin_size - 1)
+                    new_b = round(b) - (round(b) % bin_size - 1)
+                    if 0 <= new_a < len(img[0]) and 0 <= new_b < len(img):
+                        circles[new_b][new_a][new_r] = circles[new_b][new_a][new_r] + 1
 
                     # negative direction of the line
-                    opa = (x - r * np.sin(-t))  # polar coordinate for center(convert to radians)
-                    opb = (y - r * np.cos(-t))  # polar coordinate for center(convert to radians)
-                    if 0 < opa < len(img[0]) and 0 < opb < len(img):
-                        circles[round(opb) - round(opb) % 5- 1][round(opa) - round(opa) % 5- 1][round(r) - round(r) % 5] = \
-                            circles[round(opb) - round(opb) % 5- 1][round(opa) - round(opa) % 5- 1][round(r) - round(r) % 5] + 1
+                    opa = (x - r * sin_minus_t)  # polar coordinate for center(convert to radians)
+                    opb = (y - r * cos_minus_t)  # polar coordinate for center(convert to radians)
+                    new_opa = round(opa) - (round(opa) % bin_size - 1)
+                    new_opb = round(opb) - (round(opb) % bin_size - 1)
+                    if 0 <= new_opa < len(img[0]) and 0 <= new_opb < len(img):
+                        circles[new_opb][new_opa][new_r] = circles[new_opb][new_opa][new_r] + 1
     result = []
     error = 0.0
     print("f")
+    x = 0
+    y = 0
+    # while x < len(img[0]) - 1:
+    #     print("x")
+    #     x += 1
+    #     while y < len(img) - 1:
+    #         #print("y")
+    #         y += 1
+    #         for z in range(min_radius, max_radius + 1):
+    #             if circles[y][x][z] >= (1 - error) * (2 * np.pi * z):
+    #                 result.append([x, y, z])
+    #                 #x += round(0.2 * z * 2)
+    #                 #y += round(0.2 * z * 2)
+    #                 print([x, y, z])
+    #                 #break
+
     for x in range(len(img[0])):
         for y in range(len(img)):
             for z in range(min_radius, max_radius + 1):
                 if circles[y][x][z] >= (1 - error) * (2 * np.pi * z):
+                    # if local maxima
+                    # if circles[y][x][z] > circles[y][x+1][z] and circles[y][x][z] > circles[y][x-1][z] and circles[y][x][z] > circles[y - 1][x][z] and circles[y][x][z] > circles[y+1][x][z]:
                     result.append([x, y, z])
                     print([x, y, z])
+
     return result
 
 

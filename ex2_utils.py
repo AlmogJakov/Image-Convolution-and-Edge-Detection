@@ -219,50 +219,43 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     :return: A list containing the detected circles,
                 [(x,y,radius),(x,y,radius),...]
     """
-    # img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
-    # plt.imshow(img, cmap='gray')
-    # plt.show()
-    # img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE)
-    # img = blurImage2(img * 255, 5) / 255
+    img = blurImage2(img * 255, 5) / 255
     v = np.array([[1, 0, -1]])
     X = cv2.filter2D(img, -1, v)
     Y = cv2.filter2D(img, -1, v.T)
-    directions = np.arctan2(Y, X).astype(np.float64)
-    directions = np.rad2deg(directions) + 90
-    np.set_printoptions(threshold=np.inf)
-    print(directions)
-
-    # directions, magnitude = convDerivative(img)
-    img = cv2.Canny((img * 255).astype(np.uint8), 175, 175) / 255
+    directions = np.arctan2(Y, X).astype(np.float64) + 1.57079633 # 90 degrees = 1.57079633 radians
+    img = cv2.Canny((img * 255).astype(np.uint8), 50, 200) / 255
+    plt.imshow(img)
+    plt.show()
     circles = np.zeros((len(img), len(img[0]), max_radius + 1))
     print(circles.shape)
-    for x in range(len(img)):
-        for y in range(len(img[0])):
-            if img[x][y] != 0:
+    print(len(img))
+    for y in range(len(img)):
+        for x in range(len(img[0])):
+            if img[y][x] != 0:
+                t = directions[y][x]
                 for r in range(min_radius, max_radius + 1):
-                    t = directions[x][y]
                     # positive direction of the line
-                    b = (y - r * np.sin(t * np.pi / 180))  # polar coordinate for center(convert to radians)
-                    a = (x - r * np.cos(t * np.pi / 180))  # polar coordinate for center(convert to radians)
-                    if a < 0 or a > len(img[0]) - 1 or b < 0 or b > len(img) - 1:
-                        continue
-                    circles[round(b) - round(b) % 5][round(a) - round(a) % 5][round(r) - round(r) % 5] = \
-                        circles[round(b) - round(b) % 5][round(a) - round(a) % 5][round(r) - round(r) % 5] + 1
-                    # negative direction of the line
-                    opb = (y - r * np.sin(-t * np.pi / 180))  # polar coordinate for center(convert to radians)
-                    opa = (x - r * np.cos(-t * np.pi / 180))  # polar coordinate for center(convert to radians)
-                    if opa < 0 or opa > len(img[0]) - 1 or opb < 0 or opb > len(img) - 1:
-                        continue
-                    circles[round(opb) - round(opb) % 5][round(opa) - round(opa) % 5][round(r) - round(r) % 5] = \
-                        circles[round(opb) - round(opb) % 5][round(opa) - round(opa) % 5][round(r) - round(r) % 5] + 1
 
+                    a = (x - r * np.sin(t))  # polar coordinate for center(convert to radians)
+                    b = (y + r * np.cos(t))  # polar coordinate for center(convert to radians)
+                    if 0 < a < len(img[0]) and 0 < b < len(img):
+                        circles[round(b) - round(b) % 5 - 1][round(a) - round(a) % 5 - 1][round(r) - round(r) % 5] = \
+                            circles[round(b) - round(b) % 5 - 1][round(a) - round(a) % 5 - 1][round(r) - round(r) % 5] + 1
+
+                    # negative direction of the line
+                    opa = (x - r * np.sin(-t))  # polar coordinate for center(convert to radians)
+                    opb = (y - r * np.cos(-t))  # polar coordinate for center(convert to radians)
+                    if 0 < opa < len(img[0]) and 0 < opb < len(img):
+                        circles[round(opb) - round(opb) % 5- 1][round(opa) - round(opa) % 5- 1][round(r) - round(r) % 5] = \
+                            circles[round(opb) - round(opb) % 5- 1][round(opa) - round(opa) % 5- 1][round(r) - round(r) % 5] + 1
     result = []
-    error = 0.4
+    error = 0.0
     print("f")
-    for x in range(len(img)):
-        for y in range(len(img[0])):
+    for x in range(len(img[0])):
+        for y in range(len(img)):
             for z in range(min_radius, max_radius + 1):
-                if circles[x][y][z] > (1 - error) * (2 * np.pi * z):
+                if circles[y][x][z] >= (1 - error) * (2 * np.pi * z):
                     result.append([x, y, z])
                     print([x, y, z])
     return result

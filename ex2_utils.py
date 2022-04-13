@@ -240,8 +240,8 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                 cos_t = np.cos(t)
                 sin_minus_t = np.sin(-t)
                 cos_minus_t = np.cos(-t)
-                for r in range(min_radius, max_radius + 1):
-                    new_r = round(r) - round(r) % radius_bin_size
+                for r in range(min_radius, max_radius):
+                    new_r = int(r) - int(r) % radius_bin_size + 1
                     # positive direction of the line
 
                     a = (x - r * sin_t)  # polar coordinate for center(convert to radians)

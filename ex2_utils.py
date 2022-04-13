@@ -208,9 +208,6 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     OpenCV Implementation: https://github.com/opencv/opencv/blob/master/modules/imgproc/src/hough.cpp
 '''
 
-def local_maxima_3D(data, order=1):
-    nz = np.where(data)
-
 
 def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     """
@@ -223,57 +220,44 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                 [(x,y,radius),(x,y,radius),...]
     """
     # good settings: 5542
-    X_BIN = 5
-    Y_BIN = 5
-    RADIUS_BIN = 5 # int(5 + 10/min_radius)
-    print(RADIUS_BIN)
+    X_BIN, Y_BIN, RADIUS_BIN = 5, 5, 5  # int(5 + 10/min_radius)
     img = blurImage2(img * 255, 4) / 255
     v = np.array([[1, 0, -1]])
     X = cv2.filter2D(img, -1, v)
     Y = cv2.filter2D(img, -1, v.T)
-    directions = np.arctan2(Y, X).astype(np.float64) + 1.57079633 # 90 degrees = 1.57079633 radians
+    directions = np.arctan2(Y, X).astype(np.float64) + 1.57079633  # 90 degrees = 1.57079633 radians
     img = cv2.Canny((img * 255).astype(np.uint8), 75, 200) / 255
-    plt.imshow(img)
-    plt.show()
-    circles = np.zeros((int(len(img)/Y_BIN) + 1, int(len(img[0]/X_BIN)) + 1, int(max_radius/RADIUS_BIN) + 1))
-    print(circles.shape)
-    print(len(img))
+    # plt.imshow(img)
+    # plt.show()
+    circles = np.zeros((int(len(img) / Y_BIN) + 1, int(len(img[0] / X_BIN)) + 1, int(max_radius / RADIUS_BIN) + 1))
     for y in range(len(img)):
         for x in range(len(img[0])):
             if img[y][x] != 0:
                 t = directions[y][x]
-                sin_t = np.sin(t)
-                cos_t = np.cos(t)
-                sin_minus_t = np.sin(-t)
-                cos_minus_t = np.cos(-t)
+                sin_t, cos_t = np.sin(t), np.cos(t)
+                sin_minus_t, cos_minus_t = np.sin(-t), np.cos(-t)
                 for r in range(min_radius, max_radius + 1):
                     # positive direction of the line
-
                     a = int(x - r * sin_t)  # polar coordinate for center(convert to radians)
                     b = int(y + r * cos_t)  # polar coordinate for center(convert to radians)
                     if 0 <= a < len(img[0]) and 0 <= b < len(img):
-                        circles[int(b / Y_BIN)][int(a / X_BIN)][int(r / RADIUS_BIN)] = circles[int(b / Y_BIN)][int(a / X_BIN)][int(r / RADIUS_BIN)] + 1
-
+                        circles[int(b / Y_BIN)][int(a / X_BIN)][int(r / RADIUS_BIN)] += 1
                     # negative direction of the line
                     opa = int(x - r * sin_minus_t)  # polar coordinate for center(convert to radians)
                     opb = int(y - r * cos_minus_t)  # polar coordinate for center(convert to radians)
                     if 0 <= opa < len(img[0]) and 0 <= opb < len(img):
-                        circles[int(opb / Y_BIN)][int(opa / X_BIN)][int(r / RADIUS_BIN)] = circles[int(opb / Y_BIN)][int(opa / X_BIN)][int(r / RADIUS_BIN)] + 1
+                        circles[int(opb / Y_BIN)][int(opa / X_BIN)][int(r / RADIUS_BIN)] += 1
     result = []
     error = 0.30
     print("f")
-    x_limit = 0
-    y_limit = 0
-    for x in range(int(len(img[0])/X_BIN)):
-        for y in range(int(len(img)/Y_BIN)):
-            for z in range(int(max_radius/RADIUS_BIN)):
-                if circles[y][x][z] >= (1.35 - error) * (3 * np.pi * (int(RADIUS_BIN * z + 1))):
-                    # if x > x_limit or y > y_limit:
-                        result.append([x * X_BIN + int(X_BIN/2+1), y * Y_BIN + int(Y_BIN/2+1), z * RADIUS_BIN + RADIUS_BIN])
-                        # if x > x_limit:
-                        #     x_limit = x + int(z / 2)
-                        # if y > y_limit:
-                        #     y_limit = y + int(z / 2)
+    for z in range(int(max_radius / RADIUS_BIN), 0, -1):
+        circle_cir = np.pi * (int(RADIUS_BIN * z + 1))
+        for x in range(int(len(img[0]) / X_BIN)):
+            for y in range(int(len(img) / Y_BIN)):
+                if circles[y][x][z] >= (1.35 - error) * (3 * circle_cir):
+                    result.append(
+                        [x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1), z * RADIUS_BIN + RADIUS_BIN])
+                    circles[y-z:y+z, x-z:x+z, :] = 0
     return result
 
 

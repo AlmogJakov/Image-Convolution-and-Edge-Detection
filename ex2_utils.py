@@ -258,7 +258,8 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                 # The following equation is equivalent to 3.15 * np.pi * (int(RADIUS_BIN * z + 1))
                 if circles[y][x][radius] >= ((circle_accuracy + circle_error) * circumference):
                     result.append(
-                        [x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1), radius * RADIUS_BIN + RADIUS_BIN])
+                        [x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1),
+                         radius * RADIUS_BIN + RADIUS_BIN])
                     circles[y - radius:y + radius, x - radius:x + radius, :] = 0
     return result
 
@@ -270,6 +271,7 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
 '''
 
 
+# https://stackoverflow.com/questions/58889908/implementing-a-bilateral-filter
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
         np.ndarray, np.ndarray):
     """
@@ -279,8 +281,38 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     :param sigma_space: represents the filter sigma in the coordinate.
     :return: OpenCV implementation, my implementation
     """
+    half_k = int(k_size / 2)
+    new_img = np.pad(in_image, ((half_k, half_k), (half_k, half_k)), mode='edge').astype('float32')
+    result = [[(calc_color(new_img[i:i + k_size, j:j + k_size], sigma_color, sigma_space))
+               for j in range(len(in_image[0]))] for i in range(len(in_image))]
+    result = np.array(result).astype('int')
+    opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
+    return opencv_result, result
 
-    return
+
+def calc_color(in_image: np.ndarray, sigma_color: float, sigma_space: float):
+    x = int(len(in_image) / 2)
+    y = int(len(in_image[0]) / 2)
+    prev_color = in_image[x][y]
+    value = 0
+    weight_sum = 0
+    for i in range(len(in_image)):
+        for j in range(len(in_image[0])):
+            curr = in_image[i][j]
+            col = prev_color - curr
+            dis = distance(x, y, i, j)
+            diff = gaussian(dis, sigma_space) * gaussian(col, sigma_color)
+            value += diff * curr
+            weight_sum += diff
+    return value / weight_sum
+
+
+def distance(x, y, i, j):
+    return np.sqrt((x - i) ** 2 + (y - j) ** 2)
+
+
+def gaussian(x, sigma):
+    return math.exp(- (x ** 2) / (2 * sigma ** 2))
 
 
 '''

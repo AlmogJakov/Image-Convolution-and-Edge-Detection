@@ -161,12 +161,12 @@ def derivDemo():
 
 
 def biliteralFilterDemo():
-    img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE)
-    cv2.imwrite("original_image_grayscale.jpg", img)
+    img = cv2.imread('bilateral/bilateral_src.jpg', cv2.IMREAD_GRAYSCALE)
 
     filtered_image_CV, filtered_image_my = bilateral_filter_implement(img, 9, 8.0, 16.0)
-    cv2.imwrite("filtered_image_OpenCV.jpg", filtered_image_CV)
-    cv2.imwrite("filtered_image_my.jpg", filtered_image_my)
+    cv2.imwrite("bilateral/original_image_grayscale.jpg", img)
+    cv2.imwrite("bilateral/filtered_image_OpenCV.jpg", filtered_image_CV)
+    cv2.imwrite("bilateral/filtered_image_my.jpg", filtered_image_my)
 
 
 def main():
@@ -175,8 +175,8 @@ def main():
     # derivDemo()
     # blurDemo()
     # edgeDemo()
-    houghDemo()
-    # biliteralFilterDemo()
+    # houghDemo()
+    biliteralFilterDemo()
 
 
 if __name__ == '__main__':

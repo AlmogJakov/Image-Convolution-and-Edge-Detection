@@ -168,6 +168,7 @@ if __name__ == '__main__':
     circles[0:4, 0:4, :] = 0
     print()
     print(circles)
+    # print(int(9/2+0.5))
     # a = np.array([[[1, 1, 1], [1, 1, 1], [1, 1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]]])
     # a[1:, 2:, ] = np.zeros(a[1:, 2:, ].shape)
     # print(a)

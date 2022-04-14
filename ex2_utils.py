@@ -227,9 +227,9 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     Y = cv2.filter2D(img, -1, v.T)
     directions = np.arctan2(Y, X).astype(np.float64) + 1.57079633  # 90 degrees = 1.57079633 radians
     img = cv2.Canny((img * 255).astype(np.uint8), 75, 200) / 255
+    circles = np.zeros((int(len(img) / Y_BIN) + 1, int(len(img[0] / X_BIN)) + 1, int(max_radius / RADIUS_BIN) + 1))
     # plt.imshow(img)
     # plt.show()
-    circles = np.zeros((int(len(img) / Y_BIN) + 1, int(len(img[0] / X_BIN)) + 1, int(max_radius / RADIUS_BIN) + 1))
     for y in range(len(img)):
         for x in range(len(img[0])):
             if img[y][x] != 0:
@@ -248,16 +248,19 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                     if 0 <= opa < len(img[0]) and 0 <= opb < len(img):
                         circles[int(opb / Y_BIN)][int(opa / X_BIN)][int(r / RADIUS_BIN)] += 1
     result = []
-    error = 0.30
-    print("f")
+    circle_accuracy = 1.395  # Best: 1.575, 1.395
+    circle_error = 0
     for z in range(int(max_radius / RADIUS_BIN), 0, -1):
-        circle_cir = np.pi * (int(RADIUS_BIN * z + 1))
+        circle_cir = 2 * np.pi * (int(RADIUS_BIN * z + 1))
+        if z < 8:
+            circle_error = 0.5
         for x in range(int(len(img[0]) / X_BIN)):
             for y in range(int(len(img) / Y_BIN)):
-                if circles[y][x][z] >= (1.35 - error) * (3 * circle_cir):
+                # The following equation is equivalent to 3.15 * np.pi * (int(RADIUS_BIN * z + 1))
+                if circles[y][x][z] >= ((circle_accuracy + circle_error) * circle_cir):
                     result.append(
                         [x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1), z * RADIUS_BIN + RADIUS_BIN])
-                    circles[y-z:y+z, x-z:x+z, :] = 0
+                    circles[y - z:y + z, x - z:x + z, :] = 0
     return result
 
 

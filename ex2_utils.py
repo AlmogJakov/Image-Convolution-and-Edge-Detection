@@ -283,24 +283,24 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     """
     half_k = int(k_size / 2)
     new_img = np.pad(in_image, ((half_k, half_k), (half_k, half_k)), mode='edge').astype('float32')
-    result = [[(calc_color(new_img[i:i + k_size, j:j + k_size], sigma_color, sigma_space))
+    result = [[(calc_color(new_img, i, j, k_size, sigma_color, sigma_space))
                for j in range(len(in_image[0]))] for i in range(len(in_image))]
     result = np.array(result).astype('int')
     opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
     return opencv_result, result
 
 
-def calc_color(in_image: np.ndarray, sigma_color: float, sigma_space: float):
-    x = int(len(in_image) / 2)
-    y = int(len(in_image[0]) / 2)
-    prev_color = in_image[x][y]
+def calc_color(img: np.ndarray, i: int, j: int, k_size: int, sigma_color: float, sigma_space: float):
+    x = i + int(k_size / 2)
+    y = j + int(k_size / 2)
+    prev_color = img[x][y]
     value = 0
     weight_sum = 0
-    for i in range(len(in_image)):
-        for j in range(len(in_image[0])):
-            curr = in_image[i][j]
+    for xx in range(i, i + k_size):
+        for yy in range(j, j+k_size):
+            curr = img[xx][yy]
             col = prev_color - curr
-            dis = distance(x, y, i, j)
+            dis = distance(x, y, xx, yy)
             diff = gaussian(dis, sigma_space) * gaussian(col, sigma_color)
             value += diff * curr
             weight_sum += diff

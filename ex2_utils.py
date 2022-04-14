@@ -123,12 +123,11 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-    # https://docs.opencv.org/3.4/da/d5c/tutorial_canny_detector.html TODO: fix Gaussian kernel
+    # https://docs.opencv.org/3.4/da/d5c/tutorial_canny_detector.html TODO: Gaussian kernel
     f = math.factorial
     bin_vector = np.array([[f(k_size - 1) // f(i) // f(k_size - 1 - i) for i in range(k_size)]])
     kernel = np.dot(bin_vector.T, bin_vector)
     normalized_kernel = kernel * (1 / np.sum(kernel)) if ((np.sum(kernel)) != 0) else np.zeros(kernel.shape)
-    # return cv2.filter2D(in_image * 255.0, -1, normalized_kernel, borderType=cv2.BORDER_REPLICATE) / 255
     return conv2D(in_image * 255.0, normalized_kernel) / 255
 
 
@@ -146,7 +145,9 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-    return cv2.blur(in_image, (k_size, k_size))
+    gaussian_kernel = cv2.getGaussianKernel(k_size, 0)
+    gaussian_kernel = gaussian_kernel * gaussian_kernel.T
+    return cv2.filter2D(in_image, -1, gaussian_kernel, borderType=cv2.BORDER_REPLICATE)
 
 
 '''
@@ -162,17 +163,7 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
-    new_img = np.pad(img, ((1, 1), (1, 1)), mode='edge')
-    laplacian_matrix = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
-    mat = conv2D(new_img * 255.0, laplacian_matrix)
-    result = [
-        [(1 if ((mat[i + 1][j + 1] > 0) and (mat[i + 1][j + 2] < 0))
-               or ((mat[i + 1][j + 1] > 0) and (mat[i + 1][j] < 0))
-               or ((mat[i + 1][j + 1] > 0) and (mat[i + 2][j + 1] < 0))
-               or ((mat[i + 1][j + 1] > 0) and (mat[i][j + 1] < 0))
-          else 0) for j in
-         range(len(img[0]))] for i in range(len(img))]
-    return np.array(result).astype('float32')
+    return img
 
 
 '''
@@ -188,8 +179,16 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
-    new_img = blurImage2(img, 2)
-    return edgeDetectionZeroCrossingSimple(new_img)
+    new_img = blurImage1(img * 255, 7)
+    new_img = np.pad(new_img, ((1, 1), (1, 1)), mode='edge')
+    laplacian_matrix = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]])
+    mat = conv2D(new_img, laplacian_matrix)
+    result = [
+        [(1 if (mat[i + 1][j + 1] > 0 and (mat[i + 1][j + 0] <= 0 or mat[i + 1][j + 2] <= 0
+                                           or mat[i + 0][j + 1] <= 0 or mat[i + 2][j + 1] <= 0))
+          else 0) for j in
+         range(len(img[0]))] for i in range(len(img))]
+    return np.array(result).astype('float32')
 
 
 '''
@@ -250,17 +249,17 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     result = []
     circle_accuracy = 1.395  # Best: 1.575, 1.395
     circle_error = 0
-    for z in range(int(max_radius / RADIUS_BIN), 0, -1):
-        circle_cir = 2 * np.pi * (int(RADIUS_BIN * z + 1))
-        if z < 8:
+    for radius in range(int(max_radius / RADIUS_BIN), 0, -1):
+        circumference = 2 * np.pi * (int(RADIUS_BIN * radius + 1))
+        if radius < 8:
             circle_error = 0.5
         for x in range(int(len(img[0]) / X_BIN)):
             for y in range(int(len(img) / Y_BIN)):
                 # The following equation is equivalent to 3.15 * np.pi * (int(RADIUS_BIN * z + 1))
-                if circles[y][x][z] >= ((circle_accuracy + circle_error) * circle_cir):
+                if circles[y][x][radius] >= ((circle_accuracy + circle_error) * circumference):
                     result.append(
-                        [x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1), z * RADIUS_BIN + RADIUS_BIN])
-                    circles[y - z:y + z, x - z:x + z, :] = 0
+                        [x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1), radius * RADIUS_BIN + RADIUS_BIN])
+                    circles[y - radius:y + radius, x - radius:x + radius, :] = 0
     return result
 
 

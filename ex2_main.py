@@ -41,16 +41,32 @@ def edgeDemoSimple():
 
 
 def edgeDemoLOG():
-    img = cv2.imread('input/cln.jpg', cv2.IMREAD_GRAYSCALE) / 255
-    #img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
-    #img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
-    edge_matrix = edgeDetectionZeroCrossingLOG(img)
+    # img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    # #img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    # #img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
+    # edge_matrix = edgeDetectionZeroCrossingLOG(img)
+    #
+    # f, ax = plt.subplots(1, 2)
+    # ax[0].set_title("Ori")
+    # ax[1].set_title("Edge")
+    # ax[0].imshow(img)
+    # ax[1].imshow(edge_matrix)
+    # plt.show()
 
-    f, ax = plt.subplots(1, 2)
-    ax[0].set_title("Ori")
-    ax[1].set_title("Edge")
-    ax[0].imshow(img)
-    ax[1].imshow(edge_matrix)
+    img = cv2.imread('input/boxMan.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    # img = cv2.imread('input/codeMonkey.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.resize(img, (0, 0), fx=.25, fy=.25)
+
+    # ocv = my = edgeDetectionZeroCrossingSimple(img)
+    ocv = my = edgeDetectionZeroCrossingLOG(img)
+    plt.imshow(my, cmap='gray')
+    f, ax = plt.subplots(1, 3)
+    ax[0].set_title("OPENCV")
+    ax[1].set_title("Mine")
+    ax[2].set_title("Diff")
+    ax[0].imshow(ocv)
+    ax[1].imshow(my)
+    ax[2].imshow(my - ocv)
     plt.show()
 
 
@@ -63,7 +79,7 @@ def houghDemo():
     img = cv2.imread('input/pool_balls.jpg', cv2.IMREAD_GRAYSCALE) / 255
     min_r, max_r = 10, 20
 
-    img = cv2.imread('input/shapes.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE) / 255
     min_r, max_r = 50, 100
 
     st = time.time()

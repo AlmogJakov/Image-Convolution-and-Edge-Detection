@@ -270,71 +270,48 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
 '''
 
 
-# # TODO: Implement the code as suggested in the lesson
-# # https://stackoverflow.com/questions/58889908/implementing-a-bilateral-filter
-# def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
-#         np.ndarray, np.ndarray):
-#     """
-#     :param in_image: input image
-#     :param k_size: Kernel size
-#     :param sigma_color: represents the filter sigma in the color space.
-#     :param sigma_space: represents the filter sigma in the coordinate.
-#     :return: OpenCV implementation, my implementation
-#     """
-#     half_k = int(k_size / 2)
-#     new_img = np.pad(in_image, ((half_k, half_k), (half_k, half_k)), mode='edge').astype('float32')
-#     result = [[(calc_color(new_img, i, j, k_size, sigma_color, sigma_space))
-#                for j in range(len(in_image[0]))] for i in range(len(in_image))]
-#     result = np.array(result).astype('int')
-#     opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
-#     return opencv_result, result
-#
-#
-# def calc_color(img: np.ndarray, i: int, j: int, k_size: int, sigma_color: float, sigma_space: float):
-#     x = i + int(k_size / 2)
-#     y = j + int(k_size / 2)
-#     prev_color = img[x][y]
-#     value = 0
-#     weight_sum = 0
-#     for xx in range(i, i + k_size):
-#         for yy in range(j, j + k_size):
-#             curr = img[xx][yy]
-#             col = prev_color - curr
-#             dis = distance(x, y, xx, yy)
-#             diff = gaussian(dis, sigma_space) * gaussian(col, sigma_color)
-#             value += diff * curr
-#             weight_sum += diff
-#     return value / weight_sum
-#
-#
-# def distance(x, y, i, j):
-#     return np.sqrt((x - i) ** 2 + (y - j) ** 2)
-#
-#
-# def gaussian(x, sigma):
-#     return math.exp(- (x ** 2) / (2 * sigma ** 2))
-
-
+# TODO: Implement the code as suggested in the lesson
+# https://stackoverflow.com/questions/58889908/implementing-a-bilateral-filter
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
         np.ndarray, np.ndarray):
-    img = in_image / 255.0
-    y, x = len(img)-1, len(img[0])-1
-    pivot_v = img[y, x]
-    neighbor_hood = img[
-                    y - k_size:y + k_size + 1,
-                    x - k_size:x + k_size + 1
-                    ]
-    sigma = .01
-    diff = pivot_v - neighbor_hood
+    """
+    :param in_image: input image
+    :param k_size: Kernel size
+    :param sigma_color: represents the filter sigma in the color space.
+    :param sigma_space: represents the filter sigma in the coordinate.
+    :return: OpenCV implementation, my implementation
+    """
 
-    diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma))
-    print(diff_gau)
-    gaus = cv2.getGaussianKernel(k_size + 1, k_size + 1)
-    gaus = gaus.dot(gaus.T)
-    combo = gaus * diff_gau
-    result = combo * neighbor_hood / combo.sum()
+    half_k = int(k_size / 2)
+    dis = [[(distance(i, j, half_k, half_k))
+               for j in range(k_size)] for i in range(k_size)]
+    new_img = np.pad(in_image, ((half_k, half_k), (half_k, half_k)), mode='edge').astype('float32')
+    result = [[(bilateral(new_img, i+half_k, j+half_k, k_size, sigma_color, sigma_space, dis))
+               for j in range(len(in_image[0]))] for i in range(len(in_image))]
+    result = np.array(result).astype('int')
     opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
     return opencv_result, result
+
+def distance(x, y, i, j):
+    return np.sqrt((x - i) ** 2 + (y - j) ** 2)
+
+
+def bilateral(in_image: np.ndarray, y, x, k_size: int, sigma_color: float, sigma_space: float, kernel: np.ndarray):
+    img = in_image
+    mid_size = int(k_size / 2)
+    pivot_v = img[y, x]  # y , x
+    neighbor_hood = img[
+                    y - mid_size:y + mid_size + 1,
+                    x - mid_size:x + mid_size + 1
+                    ]
+    diff = pivot_v - neighbor_hood
+    diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma_color ** 2))
+    distance_gau = np.exp(-np.power(kernel, 2) / (2 * sigma_space ** 2))
+    distance_gau = cv2.getGaussianKernel(k_size, sigma_space)
+    distance_gau = distance_gau.dot(distance_gau.T)
+    combo = distance_gau * diff_gau
+    result = combo * neighbor_hood / combo.sum()
+    return result.sum()
 
 
 '''

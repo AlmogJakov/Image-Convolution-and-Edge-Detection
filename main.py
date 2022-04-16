@@ -155,20 +155,29 @@ if __name__ == '__main__':
     # print(directions)
     # print((10 - 10 * np.sin(315 * np.pi / 180)))
     # print((10 + 10 * np.cos(315 * np.pi / 180)))
-    circles = np.zeros((4, 4, 3))
-    for i in range(len(circles)):
-        for j in range(len(circles[0])):
-            for n in range(len(circles[0][0])):
-                circles[i][j][n] = 1
+    # circles = np.zeros((4, 4, 3))
+    # for i in range(len(circles)):
+    #     for j in range(len(circles[0])):
+    #         for n in range(len(circles[0][0])):
+    #             circles[i][j][n] = 1
     # for n in range(len(circles[0][0])):
     #     print(circles[:, : n])
     # print(circles) # circles[0:1, 1:2, ]
     # circles[0:, 1:, ] = np.zeros(circles[0:, 2:, ].shape)
     # circles[0:3, 0:4, :] = np.zeros(circles[0:3, 0:4, :].shape)
-    circles[0:4, 0:4, :] = 0
-    print()
-    print(circles)
+    # circles[0:4, 0:4, :] = 0
+    # print()
+    # print(circles)
     # print(int(9/2+0.5))
     # a = np.array([[[1, 1, 1], [1, 1, 1], [1, 1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]]])
     # a[1:, 2:, ] = np.zeros(a[1:, 2:, ].shape)
     # print(a)
+
+    img = cv2.imread('input/ttt.jpg', cv2.IMREAD_GRAYSCALE)
+    v = np.array([[1, 0, -1]])
+    X = cv2.filter2D(img, -1, v)
+    Y = cv2.filter2D(img, -1, v.T)
+    directions = np.arctan2(Y, X).astype(np.float64) + 1.57079633  # 90 degrees = 1.57079633 radians
+    np.set_printoptions(threshold=np.inf)
+    print(directions)
+

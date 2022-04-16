@@ -197,13 +197,49 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
 '''
 '''
 'houghCircle' Method:
-    Algorithm: https://theailearner.com/tag/hough-gradient-method/
-    sobel: https://pyimagesearch.com/2021/05/12/image-gradients-with-opencv-sobel-and-scharr/
-    sobel: http://www.adeveloperdiary.com/data-science/computer-vision/how-to-implement-sobel-edge-detection-using-python-from-scratch/
-    sobel: https://docs.opencv.org/3.4/d2/d2c/tutorial_sobel_derivatives.html
-    https://pyimagesearch.com/2021/05/12/image-gradients-with-opencv-sobel-and-scharr/
-    https://github.com/ido1Shapira/Image_Processing_ex2/blob/master/ex2_utils.py
-    OpenCV Implementation: https://github.com/opencv/opencv/blob/master/modules/imgproc/src/hough.cpp
+    if (x, y) = (50, 50) and the angle in that point is 45 degree (= 0.785398163 radians) then:
+    for radius=30, degrees=45 we get:
+            a = int(x - r * sin(t)) = 50 - 30 * 0.7068) = 28.82
+            b = int(y + r * cos(t)) = 50 + 30 * 0.7073) = 71.219
+    Therefore the center point in the straight direction is (28.82, 71.219):
+    Calculate the center in the opposite direction of the line:
+            a = int(x - r * sin(-t)) = 50 - 30 * -0.7068) = 71.204
+            b = int(y - r * cos(-t)) = 50 - 30 * 0.7073) = 28.91
+    Therefore the center point in the opposite direction is (71.204, 28.91):
+            
+    
+    after adding 90 degrees (1.57079633 radians) to the direction we get the following circle:
+    
+                                                          (71.2, 28.9)
+                                                        /
+                               [90 degree]            /
+                                 O    O             /
+                            O              O      /       
+                       O                        O  (50, 50)         
+                     O                        /   O         
+                   O                        /       O      
+                  O                       /          O     
+                 O                      /             O     
+    [180 degree] O            (28.8, 71.2)            O  [0 degree]  
+                 O                                    O      
+                  O                                  O     
+                   O                                O       
+                     O                            O        
+                       O                        O        
+                            O              O             
+                                 O    O
+                              [360 degree]
+                              
+                              
+    for radius 30, 135 degrees (= 2.35619449 radians) we get:
+            a = int(x - r * sin(t)) = 50 - 30 * 0.7071) = 28.787
+            b = int(y + r * cos(t)) = 50 + 30 * -0.7071) = 28.787
+    Therefore the center point in the straight direction is (28.787, 28.787):
+    Calculate the center in the opposite direction of the line:
+            a = int(x - r * sin(-t)) = 50 - 30 * -0.7071) = 71.213
+            b = int(y - r * cos(-t)) = 50 - 30 * -0.7071) = 71.213
+    Therefore the center point in the opposite direction is (71.213, 71.213):
+    
 '''
 
 
@@ -293,9 +329,9 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
 def bilateral_pixle(in_image: np.ndarray, y, x, k_size: int, sigma_color: float, sigma_space: float):
     img = in_image
     mid_kernel = int(k_size / 2)
-    pivot_v = img[y, x]  # the color of the target
+    pivot = img[y, x]  # the color of the target
     neighbor_hood = img[y - mid_kernel:y + mid_kernel + 1, x - mid_kernel:x + mid_kernel + 1]
-    diff = pivot_v - neighbor_hood
+    diff = pivot - neighbor_hood
     diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma_color ** 2))
     distance_gau = cv2.getGaussianKernel(k_size, sigma_space)
     distance_gau = distance_gau.dot(distance_gau.T)

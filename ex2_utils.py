@@ -1,7 +1,6 @@
 import math
 import numpy as np
 from cv2 import cv2
-import matplotlib.pyplot as plt
 
 '''
 #################################################################################################################
@@ -283,30 +282,21 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     """
 
     half_k = int(k_size / 2)
-    dis = [[(distance(i, j, half_k, half_k))
-               for j in range(k_size)] for i in range(k_size)]
     new_img = np.pad(in_image, ((half_k, half_k), (half_k, half_k)), mode='edge').astype('float32')
-    result = [[(bilateral(new_img, i+half_k, j+half_k, k_size, sigma_color, sigma_space, dis))
+    result = [[(bilateral_pixle(new_img, i + half_k, j + half_k, k_size, sigma_color, sigma_space))
                for j in range(len(in_image[0]))] for i in range(len(in_image))]
     result = np.array(result).astype('int')
     opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
     return opencv_result, result
 
-def distance(x, y, i, j):
-    return np.sqrt((x - i) ** 2 + (y - j) ** 2)
 
-
-def bilateral(in_image: np.ndarray, y, x, k_size: int, sigma_color: float, sigma_space: float, kernel: np.ndarray):
+def bilateral_pixle(in_image: np.ndarray, y, x, k_size: int, sigma_color: float, sigma_space: float):
     img = in_image
-    mid_size = int(k_size / 2)
-    pivot_v = img[y, x]  # y , x
-    neighbor_hood = img[
-                    y - mid_size:y + mid_size + 1,
-                    x - mid_size:x + mid_size + 1
-                    ]
+    mid_kernel = int(k_size / 2)
+    pivot_v = img[y, x]  # the color of the target
+    neighbor_hood = img[y - mid_kernel:y + mid_kernel + 1, x - mid_kernel:x + mid_kernel + 1]
     diff = pivot_v - neighbor_hood
     diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma_color ** 2))
-    distance_gau = np.exp(-np.power(kernel, 2) / (2 * sigma_space ** 2))
     distance_gau = cv2.getGaussianKernel(k_size, sigma_space)
     distance_gau = distance_gau.dot(distance_gau.T)
     combo = distance_gau * diff_gau

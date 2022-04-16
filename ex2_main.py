@@ -161,7 +161,7 @@ def derivDemo():
 
 
 def biliteralFilterDemo():
-    img = cv2.imread('bilateral/bilateral_src.jpg', cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread('bilateral/boxMan.jpg', cv2.IMREAD_GRAYSCALE)
 
     filtered_image_CV, filtered_image_my = bilateral_filter_implement(img, 9, 8.0, 16.0)
     cv2.imwrite("bilateral/original_image_grayscale.jpg", img)

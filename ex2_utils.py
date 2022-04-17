@@ -26,7 +26,7 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
         temp = np.zeros((len(in_signal) * 2,), dtype=dt)
         np.put(temp, np.arange(i + 1 - len(k_size), i + 1), reversed_k, mode='clip')
         result[i] = np.sum(np.dot(temp[0:len(in_signal)], in_signal))
-    return result[0:result_len]
+    return result
 
 
 '''
@@ -38,9 +38,7 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
 'conv2D' Method:
     Instead of flipping the kernel (matrix flipping) and use the regular convolution formula
     we can leave the kernel as is and use element-wise multiplication.
-    
     The Method can return negative values! (useful for laplacian)
-    
     OpenCV Implementation: https://github.com/opencv/opencv/blob/master/modules/imgproc/src/opencl/filter2D.cl
 '''
 
@@ -74,9 +72,7 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     About 'arctan2':
         in case of x=0: arctan2(y, x) returns theta = -pi or pi
         Note! 'np.arctan2' returns Radian values!
-        And hence we want to returns degree values -> we use 'rad2deg' function. (multiply by 180 / pi).
         check more here: http://library.isr.ist.utl.pt/docs/numpy/reference/generated/numpy.arctan2.html
-        
     more sources: 
         https://lilianweng.github.io/posts/2017-10-29-object-recognition-part-1/
         https://docs.opencv.org/4.x/d5/d0f/tutorial_py_gradients.html
@@ -94,7 +90,7 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     y_kernel = x_kernel.T  # Vertical vector
     x = conv2D(in_image * 255.0, x_kernel) / 255.0
     y = conv2D(in_image * 255.0, y_kernel) / 255.0
-    directions = np.rad2deg(np.arctan2(y, x).astype(np.float64))
+    directions = np.arctan2(y, x).astype(np.float64)
     magnitude = np.sqrt(x ** 2 + y ** 2).astype(np.float64)
     return directions, magnitude
 
@@ -197,8 +193,8 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
 '''
 '''
 'houghCircle' Method:
-    if (x, y) = (50, 50) and the angle in that point is 45 degree (= 0.785398163 radians) then:
-    for radius=30, degrees=45 we get:
+    if (x, y) = (50, 50) and the angle in that point is t=45 degree (= 0.785398163 radians) then:
+    for radius=30 we get:
             a = int(x - r * sin(t)) = 50 - 30 * 0.7068) = 28.82
             b = int(y - r * cos(t)) = 50 - 30 * 0.7073) = 28.82
     Therefore the polar coordinate for center point in the straight direction is (28.82, 28.82):
@@ -222,8 +218,9 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
                                    O              O             
                                         O    O
                                     [180 degree]
-                              
-    for radius 30, 135 degrees (= 2.35619449 radians) we get:
+    
+    if (x, y) = (50, 50) and the angle in that point is t=135 degree (= 2.35619449 radians) then: 
+    for radius 30 we get:
             a = int(x - r * sin(t)) = 50 - 30 * 0.7071) = 28.787
             b = int(y - r * cos(t)) = 50 + 30 * -0.7071) = 71.213
     Therefore the polar coordinate for center point in the straight direction is (71.213, 28.787).
@@ -245,10 +242,13 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     :return: A list containing the detected circles,
                 [(x,y,radius),(x,y,radius),...]
     """
-    X_BIN, Y_BIN, RADIUS_BIN = 5, 5, 5  # int(5 + 10/min_radius)
-    circle_accuracy, circle_error = 1.395, 0  # Best: 1.575, 1.395
+    X_BIN, Y_BIN, RADIUS_BIN = 5, 5, 5
+    circle_accuracy, circle_error = 1.395, 0
+    # Blur the image to improve the accuracy of the angles
     img = blurImage2(img * 255, 4) / 255
+    # get the directions of each pixle
     directions = __get_directions(img)
+    # get the edges of the image
     img = cv2.Canny((img * 255).astype(np.uint8), 75, 200) / 255
     circles = np.zeros((int(len(img) / Y_BIN) + 1, int(len(img[0] / X_BIN)) + 1, int(max_radius / RADIUS_BIN) + 1))
     for y in range(len(img)):
@@ -291,8 +291,6 @@ def __get_directions(img: np.ndarray):
 '''
 
 
-# TODO: Implement the code as suggested in the lesson
-# https://stackoverflow.com/questions/58889908/implementing-a-bilateral-filter
 def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
         np.ndarray, np.ndarray):
     """

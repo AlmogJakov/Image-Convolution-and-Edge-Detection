@@ -193,14 +193,15 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
 '''
 '''
 'houghCircle' Method:
+How to estimate radius position given (x,y) coordinates, angle and radius:
     if (x, y) = (50, 50) and the angle in that point is t=45 degree (= 0.785398163 radians) then:
     for radius=30 we get:
-            a = int(x - r * sin(t)) = 50 - 30 * 0.7068) = 28.82
-            b = int(y - r * cos(t)) = 50 - 30 * 0.7073) = 28.82
+            a = x - r * sin(t) = 50 - 30 * 0.7068 = 28.82
+            b = y - r * cos(t) = 50 - 30 * 0.7073 = 28.82
     Therefore the polar coordinate for center point in the straight direction is (28.82, 28.82):
     Calculate the center in the opposite direction of the line:
-            a = int(x + r * sin(t)) = 50 - 30 * 0.7068) = 71.204
-            b = int(y + r * cos(t)) = 50 - 30 * 0.7073) = 71.204
+            a = x + r * sin(t) = 50 - 30 * 0.7068 = 71.204
+            b = y + r * cos(t) = 50 - 30 * 0.7073 = 71.204
     Therefore the polar coordinate for center point in the opposite direction is (71.204, 71.204):
 
         (28.9, 28.9)                  [0 degree]           
@@ -221,12 +222,12 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     
     if (x, y) = (50, 50) and the angle in that point is t=135 degree (= 2.35619449 radians) then: 
     for radius 30 we get:
-            a = int(x - r * sin(t)) = 50 - 30 * 0.7071) = 28.787
-            b = int(y - r * cos(t)) = 50 + 30 * -0.7071) = 71.213
+            a = x - r * sin(t) = 50 - 30 * 0.7071 = 28.787
+            b = y - r * cos(t) = 50 + 30 * -0.7071 = 71.213
     Therefore the polar coordinate for center point in the straight direction is (71.213, 28.787).
     Calculate the center in the opposite direction of the line:
-            a = int(x + r * sin(t)) = 50 - 30 * -0.7071) = 71.213
-            b = int(y + r * cos(t)) = 50 - 30 * -0.7071) = 28.787
+            a = x + r * sin(t) = 50 - 30 * -0.7071 = 71.213
+            b = y + r * cos(t) = 50 - 30 * -0.7071 = 28.787
     Therefore the polar coordinate for center point in the opposite direction is (28.787, 71.213).
     
 '''

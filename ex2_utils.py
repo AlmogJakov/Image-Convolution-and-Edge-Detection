@@ -201,25 +201,23 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     for radius=30, degrees=45 we get:
             a = int(x - r * sin(t)) = 50 - 30 * 0.7068) = 28.82
             b = int(y + r * cos(t)) = 50 + 30 * 0.7073) = 71.219
-    Therefore the center point in the straight direction is (28.82, 71.219):
+    Therefore the polar coordinate for center point in the straight direction is (28.82, 71.219):
     Calculate the center in the opposite direction of the line:
             a = int(x - r * sin(-t)) = 50 - 30 * -0.7068) = 71.204
             b = int(y - r * cos(-t)) = 50 - 30 * 0.7073) = 28.91
-    Therefore the center point in the opposite direction is (71.204, 28.91):
+    Therefore the polar coordinate for center point in the opposite direction is (71.204, 28.91):
             
-    
-    after adding 90 degrees (1.57079633 radians) to the direction we get the following circle:
-    
-                                                          (71.2, 28.9)
-                                                        /
+    After adding 90 degrees (1.57079633 radians) to the direction we get the following circle:
+
+                                                        (71.2, 28.9)
                                [90 degree]            /
                                  O    O             /
                             O              O      /       
                        O                        O  (50, 50)         
                      O                        /   O         
                    O                        /       O      
-                  O                      /           O      
-     [180 degree] O           (28.8, 71.2)           O  [0 degree]    
+                  O                       /          O      
+     [180 degree] O            (28.8, 71.2)          O  [0 degree]    
                   O                                  O     
                    O                                O       
                      O                            O        
@@ -228,15 +226,14 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
                                  O    O
                               [360 degree]
                               
-                              
     for radius 30, 135 degrees (= 2.35619449 radians) we get:
             a = int(x - r * sin(t)) = 50 - 30 * 0.7071) = 28.787
             b = int(y + r * cos(t)) = 50 + 30 * -0.7071) = 28.787
-    Therefore the center point in the straight direction is (28.787, 28.787):
+    Therefore the polar coordinate for center point in the straight direction is (28.787, 28.787):
     Calculate the center in the opposite direction of the line:
             a = int(x - r * sin(-t)) = 50 - 30 * -0.7071) = 71.213
             b = int(y - r * cos(-t)) = 50 - 30 * -0.7071) = 71.213
-    Therefore the center point in the opposite direction is (71.213, 71.213):
+    Therefore the polar coordinate for center point in the opposite direction is (71.213, 71.213):
     
 '''
 
@@ -251,7 +248,6 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     :return: A list containing the detected circles,
                 [(x,y,radius),(x,y,radius),...]
     """
-    # good settings: 5542
     X_BIN, Y_BIN, RADIUS_BIN = 5, 5, 5  # int(5 + 10/min_radius)
     circle_accuracy, circle_error = 1.395, 0  # Best: 1.575, 1.395
     img = blurImage2(img * 255, 4) / 255
@@ -265,14 +261,12 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                 sin_t, cos_t = np.sin(t), np.cos(t)
                 sin_minus_t, cos_minus_t = np.sin(-t), np.cos(-t)
                 for r in range(min_radius, max_radius + 1):
-                    # positive direction of the line
-                    a = int(x - r * sin_t)  # polar coordinate for center(convert to radians)
-                    b = int(y + r * cos_t)  # polar coordinate for center(convert to radians)
+                    a = int(x - r * sin_t)
+                    b = int(y + r * cos_t)
                     if 0 <= a < len(img[0]) and 0 <= b < len(img):
                         circles[int(b / Y_BIN)][int(a / X_BIN)][int(r / RADIUS_BIN)] += 1
-                    # negative direction of the line
-                    opa = int(x - r * sin_minus_t)  # polar coordinate for center(convert to radians)
-                    opb = int(y - r * cos_minus_t)  # polar coordinate for center(convert to radians)
+                    opa = int(x - r * sin_minus_t)
+                    opb = int(y - r * cos_minus_t)
                     if 0 <= opa < len(img[0]) and 0 <= opb < len(img):
                         circles[int(opb / Y_BIN)][int(opa / X_BIN)][int(r / RADIUS_BIN)] += 1
     result = []
@@ -282,7 +276,6 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
             circle_error = 0.5
         for x in range(int(len(img[0]) / X_BIN)):
             for y in range(int(len(img) / Y_BIN)):
-                # The following equation is equivalent to 3.15 * np.pi * (int(RADIUS_BIN * z + 1))
                 if circles[y][x][radius] >= ((circle_accuracy + circle_error) * circumference):
                     result.append([x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1),
                                    radius * RADIUS_BIN + RADIUS_BIN])

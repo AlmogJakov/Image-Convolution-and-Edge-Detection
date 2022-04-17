@@ -218,10 +218,8 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
                        O                        O  (50, 50)         
                      O                        /   O         
                    O                        /       O      
-                  O                       /          O     
-                 O                      /             O     
-    [180 degree] O            (28.8, 71.2)            O  [0 degree]  
-                 O                                    O      
+                  O                      /           O      
+     [180 degree] O           (28.8, 71.2)           O  [0 degree]    
                   O                                  O     
                    O                                O       
                      O                            O        
@@ -257,14 +255,9 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     X_BIN, Y_BIN, RADIUS_BIN = 5, 5, 5  # int(5 + 10/min_radius)
     circle_accuracy, circle_error = 1.395, 0  # Best: 1.575, 1.395
     img = blurImage2(img * 255, 4) / 255
-    v = np.array([[1, 0, -1]])
-    X = cv2.filter2D(img, -1, v)
-    Y = cv2.filter2D(img, -1, v.T)
-    directions = np.arctan2(Y, X).astype(np.float64) + 1.57079633  # 90 degrees = 1.57079633 radians
+    directions = __get_directions(img) + 1.57079633  # 90 degrees = 1.57079633 radians
     img = cv2.Canny((img * 255).astype(np.uint8), 75, 200) / 255
     circles = np.zeros((int(len(img) / Y_BIN) + 1, int(len(img[0] / X_BIN)) + 1, int(max_radius / RADIUS_BIN) + 1))
-    # plt.imshow(img)
-    # plt.show()
     for y in range(len(img)):
         for x in range(len(img[0])):
             if img[y][x] != 0:
@@ -291,11 +284,17 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
             for y in range(int(len(img) / Y_BIN)):
                 # The following equation is equivalent to 3.15 * np.pi * (int(RADIUS_BIN * z + 1))
                 if circles[y][x][radius] >= ((circle_accuracy + circle_error) * circumference):
-                    result.append(
-                        [x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1),
-                         radius * RADIUS_BIN + RADIUS_BIN])
+                    result.append([x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1),
+                                   radius * RADIUS_BIN + RADIUS_BIN])
                     circles[y - radius:y + radius, x - radius:x + radius, :] = 0
     return result
+
+
+def __get_directions(img: np.ndarray):
+    v = np.array([[1, 0, -1]])
+    X = cv2.filter2D(img, -1, v)
+    Y = cv2.filter2D(img, -1, v.T)
+    return np.arctan2(Y, X).astype(np.float64)
 
 
 '''
@@ -319,14 +318,14 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
 
     half_k = int(k_size / 2)
     new_img = np.pad(in_image, ((half_k, half_k), (half_k, half_k)), mode='edge').astype('float32')
-    result = [[(bilateral_pixle(new_img, i + half_k, j + half_k, k_size, sigma_color, sigma_space))
+    result = [[(__bilateral_pixle(new_img, i + half_k, j + half_k, k_size, sigma_color, sigma_space))
                for j in range(len(in_image[0]))] for i in range(len(in_image))]
     result = np.array(result).astype('int')
     opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
     return opencv_result, result
 
 
-def bilateral_pixle(in_image: np.ndarray, y, x, k_size: int, sigma_color: float, sigma_space: float):
+def __bilateral_pixle(in_image: np.ndarray, y, x, k_size: int, sigma_color: float, sigma_space: float):
     img = in_image
     mid_kernel = int(k_size / 2)
     pivot = img[y, x]  # the color of the target

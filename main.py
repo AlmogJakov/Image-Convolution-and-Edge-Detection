@@ -5,6 +5,7 @@
 import math
 
 from cv2 import cv2
+import matplotlib.pyplot as plt
 
 
 def print_hi(name):
@@ -16,3 +17,7 @@ def print_hi(name):
 if __name__ == '__main__':
     print_hi('PyCharm')
     print("Your OpenCV version is: " + cv2.__version__)
+    img = cv2.imread('input/tenis.jpg')
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.imshow(img)
+    plt.show()

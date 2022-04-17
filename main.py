@@ -177,7 +177,7 @@ if __name__ == '__main__':
     v = np.array([[1, 0, -1]])
     X = cv2.filter2D(img, -1, v)
     Y = cv2.filter2D(img, -1, v.T)
-    directions = np.arctan2(Y, X).astype(np.float64) + 1.57079633  # 90 degrees = 1.57079633 radians
+    directions = np.arctan2(Y, X).astype(np.float64)  #  + 1.57079633 90 degrees = 1.57079633 radians
     np.set_printoptions(threshold=np.inf)
     print(directions)
 

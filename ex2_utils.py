@@ -200,40 +200,37 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     if (x, y) = (50, 50) and the angle in that point is 45 degree (= 0.785398163 radians) then:
     for radius=30, degrees=45 we get:
             a = int(x - r * sin(t)) = 50 - 30 * 0.7068) = 28.82
-            b = int(y + r * cos(t)) = 50 + 30 * 0.7073) = 71.219
-    Therefore the polar coordinate for center point in the straight direction is (28.82, 71.219):
+            b = int(y - r * cos(t)) = 50 - 30 * 0.7073) = 28.82
+    Therefore the polar coordinate for center point in the straight direction is (28.82, 28.82):
     Calculate the center in the opposite direction of the line:
-            a = int(x - r * sin(-t)) = 50 - 30 * -0.7068) = 71.204
-            b = int(y - r * cos(-t)) = 50 - 30 * 0.7073) = 28.91
-    Therefore the polar coordinate for center point in the opposite direction is (71.204, 28.91):
-            
-    After adding 90 degrees (1.57079633 radians) to the direction we get the following circle:
+            a = int(x + r * sin(t)) = 50 - 30 * 0.7068) = 71.204
+            b = int(y + r * cos(t)) = 50 - 30 * 0.7073) = 71.204
+    Therefore the polar coordinate for center point in the opposite direction is (71.204, 71.204):
 
-                                                        (71.2, 28.9)
-                               [90 degree]            /
-                                 O    O             /
-                            O              O      /       
-                       O                        O  (50, 50)         
-                     O                        /   O         
-                   O                        /       O      
-                  O                       /          O      
-     [180 degree] O            (28.8, 71.2)          O  [0 degree]    
-                  O                                  O     
-                   O                                O       
-                     O                            O        
-                       O                        O        
-                            O              O             
-                                 O    O
-                              [360 degree]
+        (28.9, 28.9)                  [0 degree]           
+                     \\                 O    O              
+                        \\         O              O              
+                  (50, 50) \\ O                        O         
+                            O \\                         O         
+                          O      \\                        O      
+                         O          \\                      O      
+             [90 degree] O           (71.2, 71.2)           O  [360 degree]    
+                         O                                  O     
+                          O                                O       
+                            O                            O        
+                              O                        O        
+                                   O              O             
+                                        O    O
+                                    [180 degree]
                               
     for radius 30, 135 degrees (= 2.35619449 radians) we get:
             a = int(x - r * sin(t)) = 50 - 30 * 0.7071) = 28.787
-            b = int(y + r * cos(t)) = 50 + 30 * -0.7071) = 28.787
-    Therefore the polar coordinate for center point in the straight direction is (28.787, 28.787):
+            b = int(y - r * cos(t)) = 50 + 30 * -0.7071) = 71.213
+    Therefore the polar coordinate for center point in the straight direction is (71.213, 28.787).
     Calculate the center in the opposite direction of the line:
-            a = int(x - r * sin(-t)) = 50 - 30 * -0.7071) = 71.213
-            b = int(y - r * cos(-t)) = 50 - 30 * -0.7071) = 71.213
-    Therefore the polar coordinate for center point in the opposite direction is (71.213, 71.213):
+            a = int(x + r * sin(t)) = 50 - 30 * -0.7071) = 71.213
+            b = int(y + r * cos(t)) = 50 - 30 * -0.7071) = 28.787
+    Therefore the polar coordinate for center point in the opposite direction is (28.787, 71.213).
     
 '''
 
@@ -251,7 +248,7 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     X_BIN, Y_BIN, RADIUS_BIN = 5, 5, 5  # int(5 + 10/min_radius)
     circle_accuracy, circle_error = 1.395, 0  # Best: 1.575, 1.395
     img = blurImage2(img * 255, 4) / 255
-    directions = __get_directions(img) + 1.57079633  # 90 degrees = 1.57079633 radians
+    directions = __get_directions(img)
     img = cv2.Canny((img * 255).astype(np.uint8), 75, 200) / 255
     circles = np.zeros((int(len(img) / Y_BIN) + 1, int(len(img[0] / X_BIN)) + 1, int(max_radius / RADIUS_BIN) + 1))
     for y in range(len(img)):
@@ -259,16 +256,13 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
             if img[y][x] != 0:
                 t = directions[y][x]
                 sin_t, cos_t = np.sin(t), np.cos(t)
-                sin_minus_t, cos_minus_t = np.sin(-t), np.cos(-t)
                 for r in range(min_radius, max_radius + 1):
-                    a = int(x - r * sin_t)
-                    b = int(y + r * cos_t)
-                    if 0 <= a < len(img[0]) and 0 <= b < len(img):
-                        circles[int(b / Y_BIN)][int(a / X_BIN)][int(r / RADIUS_BIN)] += 1
-                    opa = int(x - r * sin_minus_t)
-                    opb = int(y - r * cos_minus_t)
-                    if 0 <= opa < len(img[0]) and 0 <= opb < len(img):
-                        circles[int(opb / Y_BIN)][int(opa / X_BIN)][int(r / RADIUS_BIN)] += 1
+                    a, b = int(y - r * sin_t), int(x - r * cos_t)
+                    if 0 <= a < len(img) and 0 <= b < len(img[0]):
+                        circles[int(a / Y_BIN)][int(b / X_BIN)][int(r / RADIUS_BIN)] += 1
+                    a, b = int(y + r * sin_t), int(x + r * cos_t)
+                    if 0 <= a < len(img) and 0 <= b < len(img[0]):
+                        circles[int(a / Y_BIN)][int(b / X_BIN)][int(r / RADIUS_BIN)] += 1
     result = []
     for radius in range(int(max_radius / RADIUS_BIN), 0, -1):
         circumference = 2 * np.pi * (int(RADIUS_BIN * radius + 1))

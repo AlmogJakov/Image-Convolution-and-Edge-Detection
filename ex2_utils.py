@@ -306,7 +306,7 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     new_img = np.pad(in_image, ((half_k, half_k), (half_k, half_k)), mode='edge').astype('float32')
     result = [[(__bilateral_pixle(new_img, i + half_k, j + half_k, k_size, sigma_color, sigma_space))
                for j in range(len(in_image[0]))] for i in range(len(in_image))]
-    result = np.array(result).astype('int')
+    result = np.array(np.rint(result)).astype('int')
     opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
     return opencv_result, result
 
@@ -321,8 +321,7 @@ def __bilateral_pixle(in_image: np.ndarray, y, x, k_size: int, sigma_color: floa
     distance_gau = cv2.getGaussianKernel(k_size, sigma_space)
     distance_gau = distance_gau.dot(distance_gau.T)
     combo = distance_gau * diff_gau
-    result = combo * neighbor_hood / combo.sum()
-    return result.sum()
+    return (combo * neighbor_hood).sum() / combo.sum()
 
 
 '''

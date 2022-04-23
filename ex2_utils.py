@@ -307,7 +307,7 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     result = [[(__bilateral_pixle(new_img, i + half_k, j + half_k, k_size, sigma_color, sigma_space))
                for j in range(len(in_image[0]))] for i in range(len(in_image))]
     result = np.array(np.rint(result)).astype('int')
-    opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_DEFAULT)
+    opencv_result = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space, cv2.BORDER_REPLICATE)
     return opencv_result, result
 
 

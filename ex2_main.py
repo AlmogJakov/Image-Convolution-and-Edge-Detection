@@ -133,7 +133,7 @@ def biliteralFilterDemo():
     cv2.imwrite("original_image_grayscale.jpg", img)
 
     filtered_image_CV, filtered_image_my = bilateral_filter_implement(img, 9, 8.0, 16.0)
-    print("Blurring MSE:{:.6f}".format(np.sqrt(np.power(filtered_image_CV - filtered_image_my, 2).mean())))
+    # print("Blurring MSE:{:.6f}".format(np.sqrt(np.power(filtered_image_CV - filtered_image_my, 2).mean())))
     cv2.imwrite("filtered_image_OpenCV.jpg", filtered_image_CV)
     cv2.imwrite("filtered_image_my.jpg", filtered_image_my)
 

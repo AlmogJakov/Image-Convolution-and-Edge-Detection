@@ -5,9 +5,10 @@ Implementation of convolution, image derivative, image blurring, Edge detection,
 
 1. [ Convolution ](#convolution)
 2. [ Image derivatives ](#image-derivatives)
-3. [ Edge detection via LoG zero-crossing ](#edge-detection-via-log-zero-crossing)
-4. [ Hough Circles ](#hough-circles)
-5. [ Bilateral filter ](#bilateral-filter)
+3. [ Image Blurring ](#image-blurring)
+4. [ Edge detection via LoG zero-crossing ](#edge-detection-via-log-zero-crossing)
+5. [ Hough Circles ](#hough-circles)
+6. [ Bilateral filter ](#bilateral-filter)
 
 -----
 
@@ -30,6 +31,18 @@ Implementation of convolution, image derivative, image blurring, Edge detection,
 | Directions (angles) / Magnitude |
 | ------------- |
 | <p align="center"><img src="https://github.com/AlmogJakov/Image-Convolution-and-Edge-Detection/blob/main/demo/ori_mag.png"/></p>  |
+  
+</div>
+
+-----
+
+<h2>Image Blurring</h2>
+
+<div align="center">
+  
+| Original | Blurred |
+| ------------- | ------------- |
+| <p align="center"><img src="https://github.com/AlmogJakov/Image-Convolution-and-Edge-Detection/blob/main/demo/blur_orig.jpg"/></p>  | <p align="center"><img src="https://github.com/AlmogJakov/Image-Convolution-and-Edge-Detection/blob/main/demo/blur_mine.jpg"/></p>  |
   
 </div>
 

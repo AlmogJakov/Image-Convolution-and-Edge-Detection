@@ -284,6 +284,7 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                     result.append([x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1),
                                    radius * RADIUS_BIN + RADIUS_BIN])
                     circles[y - radius:y + radius, x - radius:x + radius, :] = 0
+    print("threshold: 1.395 * radius * 2 * pi")
     return result
 
 

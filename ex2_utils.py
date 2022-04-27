@@ -330,7 +330,7 @@ def __bilateral_pixle(in_image: np.ndarray, y, x, k_size: int, sigma_color: floa
     diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma_color ** 2))
     distance_gau = cv2.getGaussianKernel(k_size, sigma_space)
     distance_gau = distance_gau.dot(distance_gau.T)
-    distance_gau = distance_gau * 1 / distance_gau.sum()
+    # distance_gau = distance_gau * 1 / distance_gau.sum()
     combo = distance_gau * diff_gau
     return (combo * neighbor_hood).sum() / combo.sum()
 

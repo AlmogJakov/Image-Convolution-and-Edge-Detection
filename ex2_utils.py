@@ -255,8 +255,10 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     X_BIN, Y_BIN, RADIUS_BIN = 5, 5, 5
     circle_accuracy, circle_error = 1.395, 0
     # Blur the image to improve the accuracy of the angles
+    # We can use the blur function we implemented here but in order to speedup the run we will use the CV function
     img = blurImage2(img * 255, 4) / 255
     # get the directions of each pixle
+    # We can use the directions function we implemented here but in order to speedup the run we will use the CV function
     directions = __get_directions(img)
     # get the edges of the image
     img = cv2.Canny((img * 255).astype(np.uint8), 75, 200) / 255
@@ -284,7 +286,7 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                     result.append([x * X_BIN + int(X_BIN / 2 + 1), y * Y_BIN + int(Y_BIN / 2 + 1),
                                    radius * RADIUS_BIN + RADIUS_BIN])
                     circles[y - radius:y + radius, x - radius:x + radius, :] = 0
-    print("threshold: 1.395 * radius * 2 * pi")
+    print("Canny threshold: (75, 200)")
     return result
 
 

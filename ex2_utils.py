@@ -61,7 +61,11 @@ def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     :return: The convolved image
     """
     if kernel.ndim == 1:
+        kernel = np.flip(kernel, axis=0)
         kernel = np.array([kernel]).T  # To 2D vertical vector (note the extra square brackets).
+    else:
+        kernel = np.flip(kernel, axis=0)
+        kernel = np.flip(kernel, axis=1)
     k_row = len(kernel)
     k_col = len(kernel[0])
     half_shape = tuple(int(np.floor(i / 2)) for i in kernel.shape)
